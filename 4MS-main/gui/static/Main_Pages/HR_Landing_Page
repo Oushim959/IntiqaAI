@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IntiqAI HR Internal Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-nav { background-color: #f0f2f4; color: #136dec; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] font-display">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 flex flex-col border-r border-[#dbe0e6] bg-white dark:bg-background-dark h-full shrink-0">
+<div class="p-6">
+<div class="flex items-center gap-3">
+<div class="bg-primary rounded-lg p-2 text-white">
+<span class="material-symbols-outlined text-2xl">neurology</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-[#111418] dark:text-white text-lg font-bold leading-tight">IntiqAI HR</h1>
+<p class="text-[#617289] text-xs font-medium uppercase tracking-wider">Internal Suite</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg active-nav" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<p class="text-sm font-semibold">Overview</p>
+</a>
+<a id="hrIngestionLink" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] hover:bg-gray-50 transition-colors" href="#ingestion">
+<span class="material-symbols-outlined text-[22px]">cloud_upload</span>
+<p class="text-sm font-semibold">Candidate Ingestion</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] hover:bg-gray-50 transition-colors" href="#fka">
+<span class="material-symbols-outlined text-[22px]">filter_alt</span>
+<p class="text-sm font-semibold">FKA Pipeline</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] hover:bg-gray-50 transition-colors" href="#interview">
+<span class="material-symbols-outlined text-[22px]">video_chat</span>
+<p class="text-sm font-semibold">Interview Pipeline</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] hover:bg-gray-50 transition-colors" href="#final">
+<span class="material-symbols-outlined text-[22px]">fact_check</span>
+<p class="text-sm font-semibold">Final Review</p>
+</a>
+</nav>
+<div class="p-4 border-t border-[#dbe0e6] mt-auto">
+<div class="flex items-center gap-3 p-2">
+<div class="size-9 rounded-full bg-cover bg-center" data-alt="User profile avatar circle" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC_byH4gxEDKX2oklAAfrndO8dGSsJgKi4MUW0l88NnzbOEPAnVCSnIBiDjEWWj7UNxVY28mAlooWd4tpHYk2dmDPX5AhPA9hBOTGdZeuKZeI9DR-NUtYQ2gPtz5wI42qbvLtClpUxyDqDnWUVp9ud9yDo-m4HSFSEqMlCgxRfnzBjlRHae-1sm2sy-HJpbHSWAKluHcbO-8iUFyWrwPREGese36pgOyVdwKP0GTNWWbWNDMPfx_3W7SRPTMlrEr3Vfz-c45ZBat7Q')"></div>
+<div class="flex flex-col">
+<p class="text-sm font-bold text-[#111418] dark:text-white">Sarah Miller</p>
+<p class="text-[10px] text-[#617289] font-medium uppercase">Admin Console</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-y-auto scroll-smooth">
+<!-- Global Top Bar -->
+<header class="sticky top-0 z-10 flex items-center justify-between border-b border-[#dbe0e6] bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-8 py-4">
+<div class="flex items-center gap-2">
+<h2 class="text-xl font-bold text-[#111418] dark:text-white tracking-tight">Hiring Dashboard</h2>
+</div>
+<div class="flex items-center gap-4">
+<label class="relative min-w-[320px]">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#617289] material-symbols-outlined text-xl">search</span>
+<input class="w-full pl-10 pr-4 py-2 text-sm border border-[#dbe0e6] rounded-lg bg-[#f0f2f4] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Search candidates, roles, or scores..." type="text"/>
+</label>
+<button class="flex items-center justify-center p-2 rounded-lg bg-[#f0f2f4] text-[#617289] hover:bg-gray-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<div class="px-8 py-6 space-y-12">
+<!-- Candidate Ingestion Section -->
+<section id="ingestion">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h2 class="text-2xl font-black text-[#111418] dark:text-white tracking-tight">CV Filtering</h2>
+<p class="text-sm text-[#617289]">Upload and screen newly arrived candidate CVs</p>
+</div>
+<button id="hrUploadBtn" class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-sm hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined text-lg">upload</span>
+<span>Open CV Upload</span>
+</button>
+</div>
+</section>
+<!-- FKA Pipeline Section -->
+<section id="fka">
+<div class="mb-6">
+<h2 class="text-2xl font-black text-[#111418] dark:text-white tracking-tight">FKA Pipeline</h2>
+<p class="text-sm text-[#617289]">Functional Knowledge Assessment tracking</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+<!-- Summary Metric -->
+<div class="bg-primary rounded-xl p-6 text-white flex flex-col justify-between shadow-lg shadow-primary/20">
+<div>
+<p class="text-primary-foreground/80 text-xs font-bold uppercase tracking-widest">Global conversion</p>
+<h3 class="text-4xl font-black mt-1">85%</h3>
+</div>
+<div class="mt-4 flex items-center gap-2">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="text-sm font-medium">Completion Rate</span>
+</div>
+</div>
+<!-- Kanban Summary Cards -->
+<div class="bg-white p-6 rounded-xl border border-[#dbe0e6] flex flex-col gap-2">
+<p class="text-xs font-bold text-[#617289] uppercase">Invited</p>
+<p class="text-3xl font-black text-[#111418]">24</p>
+<div class="w-full bg-gray-100 h-1.5 rounded-full mt-2">
+<div class="bg-primary/40 h-1.5 rounded-full" style="width: 30%"></div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-[#dbe0e6] flex flex-col gap-2">
+<p class="text-xs font-bold text-[#617289] uppercase">In Progress</p>
+<p class="text-3xl font-black text-[#111418]">12</p>
+<div class="w-full bg-gray-100 h-1.5 rounded-full mt-2">
+<div class="bg-primary h-1.5 rounded-full" style="width: 65%"></div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-[#dbe0e6] flex flex-col gap-2">
+<p class="text-xs font-bold text-[#617289] uppercase">Completed</p>
+<p class="text-3xl font-black text-[#111418]">18</p>
+<div class="w-full bg-gray-100 h-1.5 rounded-full mt-2">
+<div class="bg-green-500 h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Interview Pipeline Section -->
+<section id="interview">
+<div class="mb-6">
+<h2 class="text-2xl font-black text-[#111418] dark:text-white tracking-tight">Interview Pipeline</h2>
+<p class="text-sm text-[#617289]">AI analysis of candidate conversations</p>
+</div>
+<div class="bg-white rounded-xl border border-[#dbe0e6] overflow-hidden">
+<div class="grid grid-cols-4 p-4 border-b border-[#dbe0e6] bg-gray-50 text-xs font-bold text-[#617289] uppercase tracking-wider">
+<div>Candidate</div>
+<div>Status</div>
+<div>AI Insights</div>
+<div class="text-right">Schedule</div>
+</div>
+<div class="divide-y divide-[#dbe0e6]">
+<div class="grid grid-cols-4 p-5 items-center hover:bg-gray-50">
+<div class="font-bold text-[#111418]">Marcus Webb</div>
+<div>
+<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
+<span class="size-2 bg-primary rounded-full animate-pulse"></span>
+                                        In Progress
+                                    </span>
+</div>
+<div>
+<span class="text-xs bg-primary/5 text-primary px-2 py-1 rounded border border-primary/20 font-medium italic">Analyzing Sentiment...</span>
+</div>
+<div class="text-right text-xs text-[#617289] font-medium">Today, 2:30 PM</div>
+</div>
+<div class="grid grid-cols-4 p-5 items-center hover:bg-gray-50">
+<div class="font-bold text-[#111418]">Sarah Cheng</div>
+<div>
+<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-green-600">
+<span class="size-2 bg-green-500 rounded-full"></span>
+                                        Completed
+                                    </span>
+</div>
+<div>
+<span class="text-xs bg-green-50 text-green-700 px-2 py-1 rounded font-bold uppercase tracking-tighter">Sentiment: Strong</span>
+</div>
+<div class="text-right text-xs text-[#617289] font-medium">Yesterday</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Final Review Section -->
+<section id="final">
+<div class="mb-6">
+<h2 class="text-2xl font-black text-[#111418] dark:text-white tracking-tight">Final Review</h2>
+<p class="text-sm text-[#617289]">Consolidated decision center</p>
+</div>
+<div class="bg-white rounded-xl border border-[#dbe0e6] shadow-sm">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-[#dbe0e6] bg-gray-50">
+<th class="px-6 py-4 text-[10px] font-black uppercase text-[#617289] w-[20%]">Candidate</th>
+<th class="px-3 py-4 text-[10px] font-black uppercase text-[#617289] text-center">CV</th>
+<th class="px-3 py-4 text-[10px] font-black uppercase text-[#617289] text-center">FKA</th>
+<th class="px-3 py-4 text-[10px] font-black uppercase text-[#617289] text-center">INT</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase text-[#617289] w-[35%]">AI Summary Snippet</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase text-[#617289] text-right">Decision</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#dbe0e6]">
+<tr>
+<td class="px-6 py-5 align-top">
+<p class="font-bold text-[#111418]">Elena Rossi</p>
+<p class="text-[10px] text-[#617289] font-medium">Senior Architect</p>
+</td>
+<td class="px-3 py-5 align-top text-center"><span class="font-black text-sm">94</span></td>
+<td class="px-3 py-5 align-top text-center"><span class="font-black text-sm">88</span></td>
+<td class="px-3 py-5 align-top text-center"><span class="font-black text-sm">91</span></td>
+<td class="px-6 py-5 align-top">
+<p class="text-xs text-[#617289] leading-relaxed">
+<span class="font-bold text-[#111418]">AI Insight:</span> Exceptional technical depth. High potential for architecture lead. Cultural fit score exceeds baseline by 15%.
+                                        </p>
+</td>
+<td class="px-6 py-5 align-top text-right">
+<div class="flex flex-col gap-2 items-end">
+<button class="w-24 py-1.5 bg-primary text-white text-[11px] font-black rounded uppercase tracking-wider">Offer</button>
+<button class="w-24 py-1.5 border border-[#dbe0e6] text-[#617289] text-[11px] font-bold rounded uppercase tracking-wider hover:bg-gray-50">Reject</button>
+</div>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-5 align-top border-t border-[#dbe0e6]">
+<p class="font-bold text-[#111418]">David Thorne</p>
+<p class="text-[10px] text-[#617289] font-medium">DevOps Specialist</p>
+</td>
+<td class="px-3 py-5 align-top text-center"><span class="font-black text-sm">76</span></td>
+<td class="px-3 py-5 align-top text-center"><span class="font-black text-sm">92</span></td>
+<td class="px-3 py-5 align-top text-center"><span class="font-black text-sm">65</span></td>
+<td class="px-6 py-5 align-top">
+<p class="text-xs text-[#617289] leading-relaxed">
+<span class="font-bold text-[#111418]">AI Insight:</span> Strong technical skill, however interview sentiment suggests potential collaboration friction. Slight culture gap noted.
+                                        </p>
+</td>
+<td class="px-6 py-5 align-top text-right">
+<div class="flex flex-col gap-2 items-end">
+<button class="w-24 py-1.5 bg-primary text-white text-[11px] font-black rounded uppercase tracking-wider">Offer</button>
+<button class="w-24 py-1.5 border border-[#dbe0e6] text-[#617289] text-[11px] font-bold rounded uppercase tracking-wider hover:bg-gray-50">Reject</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</div>
+<script>
+// Simple client-side navigation for HR flows
+(function () {
+  const uploadBtn = document.getElementById("hrUploadBtn");
+  const ingestionLink = document.getElementById("hrIngestionLink");
+
+  function goToUpload() {
+    const isLocal =
+      window.location.origin.includes("localhost") ||
+      window.location.origin.includes("127.0.0.1");
+    if (isLocal) {
+      window.location.href = "/hr/cv_upload";
+    } else {
+      window.location.href = "../CV_Filtering/UPLOAD";
+    }
+  }
+
+  if (uploadBtn) {
+    uploadBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      goToUpload();
+    });
+  }
+
+  // Candidate Ingestion link should open the CV Filtering dashboard
+  if (ingestionLink) {
+    ingestionLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      const isLocal =
+        window.location.origin.includes("localhost") ||
+        window.location.origin.includes("127.0.0.1");
+      if (isLocal) {
+        window.location.href = "/hr/cv_filtering";
+      } else {
+        window.location.href = "../CV_Filtering/CV_Dashboard";
+      }
+    });
+  }
+})();
+</script>
+</body></html>

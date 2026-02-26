@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Candidate Dashboard - FKA Invitation</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0ea5e9", // Matched
+              "navy": "#0f172a",    // Matched
+            },
+            fontFamily: {
+              "display": ["Outfit", "sans-serif"],
+              "sans": ["Outfit", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-full min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Minimal Navigation (Logo & Profile only to maintain focus) -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#dbe0e6] dark:border-gray-800 px-10 py-4 bg-white dark:bg-gray-900">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-[#111418] dark:text-white text-xl font-bold leading-tight tracking-tight">IntiqAI</h2>
+</div>
+<div class="flex flex-1 justify-end gap-4 items-center">
+<span class="text-sm font-medium text-gray-500 dark:text-gray-400">Alex Thompson</span>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-gray-200 dark:border-gray-700" data-alt="Professional headshot of a young male professional" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDTHZfAh_4ieBtjulweOIlESRqNvRM7ci6DXSB7elYe7LEquZSU_6XkSeK03VFqfW3LL3PEF1IwyNW4dSzevnMBBzj0UVqPPGCOvE3TiwaVxgoU7mgzegc9ZW7cpNlCQ9RCbpU121AhVjK9fMEhISBAG1LzUMRu6Hph6fxYQyCEn24oMuZZqxykRax-7TqvNn54OenbcpC4Y8vcDU8xB-_ntX64rjolbATSEIRuL1dxcLL-Y9eksQEEbK9H6AeCzSA0ZEQTEWo80PA");'>
+</div>
+</div>
+</header>
+<main class="flex flex-1 flex-col items-center justify-center p-6 sm:p-10">
+<div class="layout-content-container flex flex-col max-w-[800px] w-full gap-8">
+<!-- Welcome Text -->
+<div class="flex flex-col items-center text-center gap-2">
+<h1 class="text-[#111418] dark:text-white tracking-tight text-4xl font-extrabold leading-tight">Welcome, Alex</h1>
+<p class="text-[#617289] dark:text-gray-400 text-lg max-w-lg">
+                            We're excited to see your skills in action. You've been invited to complete the first phase of the technical interview process.
+                        </p>
+</div>
+<!-- Main Assessment Card -->
+<div class="bg-white dark:bg-gray-900 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 dark:border-gray-800 overflow-hidden">
+<div class="flex flex-col @container">
+<div class="flex flex-col md:flex-row">
+<!-- Banner Image -->
+<div class="w-full md:w-1/3 min-h-[200px] bg-center bg-no-repeat bg-cover" data-alt="Clean abstract digital pattern in soft blue and white" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCc7UqFkEwBC4HGU09yglH371_LencnPUnwwN79b-vKgzgZ0zQRXpK9HpV8PvtV8k5L2wAGpSh9o_7I3QVIh68BEVp3lhwha1jicoh70e2mV6_-pOxQImhVTiOH_zjN4EJ-iEqydQxGWizQBZ1w47wicF2FgzzIYmzfkiC_lKshDy5knm880z-pGLZat_b11nnBl8yd4X_Vjb8IJQRpLgkNT-aIP1ZBRt4hhDXbmk4957_JYSr3gR10vnuCapqtLa8qJO6rCkQB3ck");'>
+</div>
+<!-- Card Content -->
+<div class="flex flex-col flex-1 p-8 gap-6">
+<div class="flex flex-col gap-2">
+<div class="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider w-fit">
+                                            Stage 1: Assessment
+                                        </div>
+<h2 class="text-[#111418] dark:text-white text-2xl font-bold">Fundamental Knowledge Assessment (FKA)</h2>
+<p class="text-[#617289] dark:text-gray-400 text-base leading-relaxed">
+                                            This assessment evaluates core technical concepts, analytical reasoning, and problem-solving skills tailored for the Engineering Specialist role.
+                                        </p>
+</div>
+<!-- Quick Info (no duration/deadline) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="flex flex-col gap-1 p-4 rounded-lg border border-gray-100 dark:border-gray-800 bg-background-light/50 dark:bg-gray-800/30">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm">psychology</span>
+<p class="text-xs font-semibold uppercase tracking-wide">Assessment Focus</p>
+</div>
+<p class="text-[#111418] dark:text-white font-bold text-lg">Core concepts & reasoning</p>
+</div>
+<div class="flex flex-col gap-1 p-4 rounded-lg border border-gray-100 dark:border-gray-800 bg-background-light/50 dark:bg-gray-800/30">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm">fact_check</span>
+<p class="text-xs font-semibold uppercase tracking-wide">Format</p>
+</div>
+<p class="text-[#111418] dark:text-white font-bold text-lg">Short written responses</p>
+</div>
+</div>
+<!-- Checklist/Requirements -->
+<div class="flex flex-col gap-3 pt-2">
+<p class="text-sm font-bold text-[#111418] dark:text-white uppercase tracking-wider">Before you begin:</p>
+<ul class="flex flex-col gap-2">
+<li class="flex items-start gap-3 text-sm text-[#617289] dark:text-gray-400">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                                                Ensure a stable internet connection.
+                                            </li>
+<li class="flex items-start gap-3 text-sm text-[#617289] dark:text-gray-400">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                                                Use a desktop browser for the best experience.
+                                            </li>
+<li class="flex items-start gap-3 text-sm text-[#617289] dark:text-gray-400">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                                                Find a quiet environment to focus.
+                                            </li>
+</ul>
+</div>
+<!-- Action / Upload Form -->
+<form id="assessment-form" class="flex flex-col gap-4 pt-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="flex flex-col gap-1">
+    <label for="jd-file" class="text-xs font-semibold uppercase tracking-wide text-[#111418] dark:text-white">
+      Job Description (PDF / DOCX / TXT)
+    </label>
+    <input id="jd-file" name="jd_file" type="file" accept=".pdf,.docx,.txt" class="block w-full text-xs text-[#617289] dark:text-gray-300 file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-primary hover:file:bg-primary/20"/>
+  </div>
+  <div class="flex flex-col gap-1">
+    <label for="cv-file" class="text-xs font-semibold uppercase tracking-wide text-[#111418] dark:text-white">
+      Candidate CV / Resume (optional)
+    </label>
+    <input id="cv-file" name="cv_file" type="file" accept=".pdf,.docx,.txt" class="block w-full text-xs text-[#617289] dark:text-gray-300 file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-primary hover:file:bg-primary/20"/>
+  </div>
+</div>
+<button id="start-assessment-btn" type="submit" class="flex w-full cursor-pointer items-center justify-center rounded-lg h-14 bg-primary hover:bg-primary/90 transition-colors text-white gap-3 text-lg font-bold">
+<span class="material-symbols-outlined">play_arrow</span>
+<span>Start Assessment</span>
+</button>
+<p class="text-center text-xs text-[#617289] dark:text-gray-500 italic">
+                                            "Upload the JD to generate tailored questions. This assessment is untimed; focus on high-quality responses."
+                                        </p>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Support -->
+<footer class="flex flex-col items-center gap-4 py-8">
+<div class="flex gap-6 text-sm font-medium text-[#617289] dark:text-gray-500">
+<a class="hover:text-primary transition-colors" href="#">Technical Support</a>
+<span class="text-gray-300 dark:text-gray-700">|</span>
+<a class="hover:text-primary transition-colors" href="#">Candidate FAQs</a>
+</div>
+<p class="text-xs text-gray-400 dark:text-gray-600">
+                            © 2023 IntiqAI Assessment Portal. All rights reserved.
+                        </p>
+</footer>
+</div>
+</main>
+</div>
+</div>
+<script>
+  (function() {
+    const form = document.getElementById("assessment-form");
+    const startBtn = document.getElementById("start-assessment-btn");
+    const jdInput = document.getElementById("jd-file");
+    const cvInput = document.getElementById("cv-file");
+
+    if (form && startBtn) {
+      form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        if (!jdInput.files || jdInput.files.length === 0) {
+          alert("Please upload a Job Description file to start the assessment.");
+          return;
+        }
+
+        startBtn.disabled = true;
+        startBtn.textContent = "Preparing assessment...";
+
+        const formData = new FormData();
+        formData.append("jd_file", jdInput.files[0]);
+
+        if (cvInput.files && cvInput.files.length > 0) {
+          formData.append("cv_file", cvInput.files[0]);
+        }
+
+        fetch("/api/init_from_upload", {
+          method: "POST",
+          body: formData,
+        })
+          .then(function(res) {
+            if (!res.ok) {
+              throw new Error("Failed to initialize assessment from uploaded JD.");
+            }
+            return res.json();
+          })
+          .then(function(data) {
+            if (!data.session_id) {
+              throw new Error("No session ID returned from server.");
+            }
+            window.location.href = "/assessment?session_id=" + encodeURIComponent(data.session_id);
+          })
+          .catch(function(err) {
+            console.error(err);
+            alert("There was an error starting the assessment. Please try again.");
+            startBtn.disabled = false;
+            startBtn.textContent = "Start Assessment";
+          });
+      });
+    }
+  })();
+</script>
+</body></html>

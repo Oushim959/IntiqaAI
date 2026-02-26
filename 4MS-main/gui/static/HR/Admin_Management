@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Management — IntiqAI</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { primary: "#0ea5e9", navy: "#0f172a" },
+          fontFamily: { sans: ["Outfit", "system-ui", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-navy dark:text-slate-100 min-h-screen transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="/hr/overview" class="text-primary font-semibold text-lg">IntiqAI</a>
+        <span class="text-slate-300 dark:text-slate-600">|</span>
+        <span class="font-semibold text-slate-800 dark:text-slate-200">Admin Management</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button type="button" id="themeToggle"
+          class="p-2 rounded-lg text-slate-500 hover:text-navy dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+          title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg id="themeIconSun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="themeIconMoon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+        <a href="/hr/overview" class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary hover:underline transition-colors">Dashboard</a>
+        <button type="button" id="logout" class="text-sm text-slate-600 dark:text-slate-400 hover:text-navy dark:hover:text-slate-100 transition-colors">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 py-8">
+    <div id="authFail" class="hidden text-center py-16">
+      <p class="text-red-600 dark:text-red-400 mb-4 font-medium">Access Denied: Admin privileges required.</p>
+      <a href="/hr/login" class="text-primary font-semibold hover:underline">Return to Login</a>
+    </div>
+
+    <div id="adminPanel" class="hidden">
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-navy dark:text-slate-100">User Approval Queue</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Review and manage pending HR account requests.</p>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Email</th>
+                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>
+                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody" class="divide-y divide-slate-100 dark:divide-slate-700">
+              <tr>
+                <td colspan="3" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 italic">Loading requests...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function themeInit() {
+      var stored = localStorage.getItem("theme");
+      var dark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      if (dark) document.documentElement.classList.add("dark"); else document.documentElement.classList.remove("dark");
+      var btn = document.getElementById("themeToggle");
+      if (btn) btn.addEventListener("click", function () {
+        document.documentElement.classList.toggle("dark");
+        localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+      });
+    })();
+
+    async function loadPendingUsers() {
+      const authFail = document.getElementById("authFail");
+      const adminPanel = document.getElementById("adminPanel");
+      const tbody = document.getElementById("userTableBody");
+
+      try {
+        const response = await fetch("/api/admin/pending_users", { credentials: "include" });
+        if (response.status === 403 || response.status === 401) {
+          authFail.classList.remove("hidden");
+          return;
+        }
+        const data = await response.json();
+        adminPanel.classList.remove("hidden");
+
+        const users = data.users || [];
+        if (users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 italic">No pending signup requests.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = users.map(u => `
+          <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-700/30 transition-colors">
+            <td class="px-6 py-4 font-medium text-navy dark:text-slate-100">${escapeHtml(u.email)}</td>
+            <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">${u.id}</td>
+            <td class="px-6 py-4 text-right space-x-3">
+              <button onclick="handleAction('${u.email}', 'approve')" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">Approve</button>
+              <button onclick="handleAction('${u.email}', 'reject')" class="text-sm font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">Reject</button>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-12 text-center text-red-500">Failed to load user list.</td></tr>`;
+      }
+    }
+
+    async function handleAction(email, action) {
+      const endpoint = action === 'approve' ? '/api/admin/approve_user' : '/api/admin/reject_user';
+      const confirmMsg = action === 'approve' ? `Approve entry for ${email}?` : `Reject and delete request from ${email}?`;
+      
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email }),
+          credentials: "include"
+        });
+        if (response.ok) {
+          loadPendingUsers();
+        } else {
+          const d = await response.json();
+          alert(d.detail || "Action failed.");
+        }
+      } catch (err) {
+        alert("Server communication error.");
+      }
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    document.getElementById("logout").addEventListener("click", () => {
+      fetch("/api/auth/hr_logout", { method: "POST", credentials: "include" }).then(() => { window.location.href = "/hr/login"; });
+    });
+
+    loadPendingUsers();
+  </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FKA Test Interface - Submitting</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0ea5e9", // Matched
+              "navy": "#0f172a",    // Matched
+            },
+            fontFamily: {
+              "display": ["Outfit", "serif"],
+              "sans": ["Outfit", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom spinner animation logic handled by Tailwind's animate-spin but including it here for completeness */
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans">
+<div class="relative flex h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Main Content Area centered both ways -->
+<main class="flex flex-1 items-center justify-center px-6 md:px-40">
+<div class="layout-content-container flex flex-col max-w-[480px] w-full bg-white dark:bg-slate-900/50 p-8 md:p-12 rounded-xl shadow-sm border border-slate-200/50 dark:border-slate-800/50 items-center text-center">
+<!-- Progress Spinner Representation -->
+<div class="mb-8 relative flex items-center justify-center">
+<!-- Outer rotating ring -->
+<div class="h-20 w-20 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+<div class="absolute h-20 w-20 rounded-full border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+<!-- Central Icon -->
+<div class="absolute flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl">upload_file</span>
+</div>
+</div>
+<!-- Headline Component -->
+<h2 class="text-[#111418] dark:text-white tracking-tight text-[28px] font-bold leading-tight pb-3">
+                        Submitting your responses...
+                    </h2>
+<!-- Body Text Component -->
+<p id="status-text" class="text-[#617289] dark:text-slate-400 text-lg font-normal leading-normal pb-8">
+                        This may take a few moments. We are securely processing your assessment data for the FKA backend.
+                    </p>
+<!-- Progress Bar Component -->
+<div class="w-full flex flex-col gap-3">
+<div class="flex gap-6 justify-between items-center">
+<p id="progress-label" class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Evaluating responses</p>
+<p id="progress-value" class="text-primary text-sm font-bold">0%</p>
+</div>
+<div class="w-full rounded bg-[#dbe0e6] dark:bg-slate-800 overflow-hidden">
+<div id="progress-inner" class="h-1.5 rounded bg-primary" style="width: 0%;"></div>
+</div>
+<p id="hint-text" class="text-[#617289] dark:text-slate-500 text-xs font-normal leading-normal mt-1 italic">
+                            Please do not refresh or close this window to prevent data loss.
+                        </p>
+</div>
+<!-- Results Container -->
+<div id="results-container" class="w-full mt-8 hidden text-left">
+  <h3 class="text-[#111418] dark:text-white text-lg font-bold mb-2">Assessment Summary</h3>
+  <p id="score-text" class="text-[#617289] dark:text-slate-300 text-base mb-1"></p>
+  <p id="recommendation-text" class="text-[#617289] dark:text-slate-300 text-base mb-3"></p>
+  <button id="back-dashboard-btn" class="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90">
+    <span class="material-symbols-outlined text-sm">home</span>
+    <span>Back to dashboard</span>
+  </button>
+</div>
+</div>
+</main>
+<!-- Minimal Footer Branding -->
+<footer class="py-8 flex justify-center opacity-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">security</span>
+<span class="text-xs uppercase tracking-widest font-sans font-semibold">FKA Secure Node</span>
+</div>
+</footer>
+</div>
+</div>
+<script>
+  (function() {
+    function getSessionIdFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("session_id");
+    }
+
+    function setProgress(percent) {
+      const inner = document.getElementById("progress-inner");
+      const value = document.getElementById("progress-value");
+      inner.style.width = percent + "%";
+      value.textContent = percent + "%";
+    }
+
+    function showResults(evaluation, totalTime) {
+      // Redirect to IntiqAI FKA result screen with data in query params
+      const params = new URLSearchParams();
+      if (evaluation && typeof evaluation.overall_score !== "undefined") {
+        params.set("score", String(evaluation.overall_score));
+      }
+      if (evaluation && evaluation.recommendation) {
+        params.set("verdict", evaluation.recommendation);
+      }
+      if (evaluation && evaluation.qualitative_feedback) {
+        params.set("summary", evaluation.qualitative_feedback);
+      }
+      if (evaluation && Array.isArray(evaluation.strengths)) {
+        params.set("strengths", JSON.stringify(evaluation.strengths));
+      }
+      if (evaluation && Array.isArray(evaluation.weaknesses)) {
+        params.set("weaknesses", JSON.stringify(evaluation.weaknesses));
+      }
+      const url = "/candidate/fka/result?" + params.toString();
+      window.location.href = url;
+    }
+
+    function attachEvents() {
+      const backBtn = document.getElementById("back-dashboard-btn");
+      if (backBtn) {
+        backBtn.addEventListener("click", function() {
+          window.location.href = "/candidate/portal";
+        });
+      }
+    }
+
+    function init() {
+      attachEvents();
+      const sessionId = getSessionIdFromQuery();
+      if (!sessionId) {
+        document.getElementById("status-text").textContent =
+          "Missing session information. Please restart the assessment.";
+        return;
+      }
+
+      setProgress(25);
+      fetch("api/evaluate/" + encodeURIComponent(sessionId))
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to evaluate assessment.");
+          setProgress(75);
+          return res.json();
+        })
+        .then(data => {
+          setProgress(100);
+          if (data && data.evaluation) {
+            showResults(data.evaluation, data.total_time);
+          } else {
+            document.getElementById("status-text").textContent =
+              "Unable to retrieve evaluation details. Please contact support.";
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById("status-text").textContent =
+            "An error occurred while processing your assessment. Please contact support.";
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  })();
+</script>
+</body></html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FKA Results — IntiqAI</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { primary: "#0ea5e9", navy: "#0f172a" },
+          fontFamily: { sans: ["Outfit", "system-ui", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-navy dark:text-slate-100 min-h-screen transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-lg">I</div>
+        <span class="font-semibold text-lg tracking-tight text-navy dark:text-white">IntiqAI</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button type="button" id="themeToggle" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <svg id="themeIconSun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="themeIconMoon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+        <a href="/candidate/portal" class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Back to portal</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-10 w-full">
+    <h1 class="text-2xl font-bold text-navy dark:text-slate-100 mb-8">Knowledge Assessment Results</h1>
+    <div id="content">
+      <p class="text-slate-500 dark:text-slate-400">Loading...</p>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      var content = document.getElementById("content");
+      fetch("/api/candidate/me", { credentials: "include" })
+        .then(function(r) {
+          if (r.status !== 200) { content.innerHTML = "<p class='text-red-600 dark:text-red-400'>Please sign in.</p>"; return null; }
+          return r.json();
+        })
+        .then(function(me) {
+          if (!me || !me.fka_session_id) {
+            content.innerHTML = "<p class='text-slate-600 dark:text-slate-400'>No FKA session found. Complete the assessment from your portal.</p><a href='/candidate/portal' class='text-primary font-medium'>Back to portal</a>";
+            return;
+          }
+          return fetch("/fka/api/evaluate/" + me.fka_session_id, { credentials: "include" })
+            .then(function(r) {
+              if (!r.ok) {
+                return r.json().then(function(err) {
+                  throw new Error(err.error || "Evaluation unavailable.");
+                }, function() {
+                  throw new Error(r.status === 404 ? "Session not found or expired. Please take the assessment again from your portal." : "Evaluation unavailable.");
+                });
+              }
+              return r.json();
+            })
+            .then(function(data) {
+              var ev = data.evaluation || {};
+              var score = (ev.overall_score != null && !isNaN(ev.overall_score)) ? Math.round(Number(ev.overall_score)) : 0;
+              
+              // Call fka_complete to persist the score if needed
+              if (me.status !== "fka_done" && me.status !== "fka_failed") {
+                fetch("/api/candidate/fka_complete", {
+                  method: "POST",
+                  credentials: "include",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ 
+                    score: score,
+                    strengths: ev.strengths,
+                    weaknesses: ev.weaknesses,
+                    justification: ev.qualitative_feedback
+                  })
+                }).catch(function() {});
+              }
+
+              var html = "<div class='space-y-6'>";
+              
+              // Thank you card (No scores shown)
+              html += "<div class='bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center'>";
+              html += "<div class='w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4'>";
+              html += "<svg class='w-8 h-8 text-green-600 dark:text-green-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'></path></svg>";
+              html += "</div>";
+              html += "<h2 class='text-2xl font-bold text-navy dark:text-white mb-2'>Assessment Submitted</h2>";
+              html += "<p class='text-slate-600 dark:text-slate-300 mb-6'>Thank you for completing the assessment. Your responses have been securely recorded.</p>";
+              html += "<p class='text-slate-500 dark:text-slate-400'>Our team will review your results and contact you shortly with the next steps.</p>";
+              html += "</div>";
+
+              html += "<div class='mt-8 flex justify-center'>";
+              html += "<a href='/candidate/portal' class='px-6 py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20'>Return to Portal</a>";
+              html += "</div>";
+
+              content.innerHTML = html;
+            })
+            .catch(function(err) {
+              var msg = (err && err.message) ? err.message : "Could not load evaluation. You may need to complete the FKA first.";
+              content.innerHTML = "<div class='bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-xl p-6'><p class='text-amber-800 dark:text-amber-200'>" + msg + "</p><a href='/candidate/portal' class='inline-block mt-4 text-primary font-medium'>← Back to portal</a></div>";
+            });
+        });
+      (function themeInit() {
+        var stored = localStorage.getItem("theme");
+        var dark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) document.documentElement.classList.add("dark"); else document.documentElement.classList.remove("dark");
+        var btn = document.getElementById("themeToggle");
+        if (btn) btn.addEventListener("click", function() {
+          document.documentElement.classList.toggle("dark");
+          localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+        });
+      })();
+    })();
+  </script>
+</body>
+</html>

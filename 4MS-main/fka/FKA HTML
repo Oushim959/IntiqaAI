@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assessment — IntiqAI</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0ea5e9",
+            navy: "#0f172a",
+            bgLight: "#f8fafc",
+            bgDark: "#020617"
+          },
+          fontFamily: { sans: ["Outfit", "system-ui", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Smooth transitions */
+    body {
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-bgLight dark:bg-bgDark text-navy dark:text-slate-100 font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <!-- Logo Icon -->
+        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-lg">
+          I
+        </div>
+        <span class="font-semibold text-lg tracking-tight">IntiqAI</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <!-- Progress Text (Desktop) -->
+        <div class="hidden md:flex flex-col items-end mr-4">
+          <span
+            class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider">Progress</span>
+          <span class="text-sm font-medium"><span id="current-q-num">1</span> / <span id="total-q-num">--</span></span>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button type="button" id="themeToggle"
+          class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Toggle theme">
+          <svg id="sunIcon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="moonIcon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Bar Line -->
+    <div class="w-full h-1 bg-slate-100 dark:bg-slate-800">
+      <div id="progressBar" class="h-full bg-primary transition-all duration-500 ease-out" style="width: 0%"></div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex flex-col items-center justify-start pt-8 pb-12 px-4 md:px-6">
+    <div class="w-full max-w-3xl fade-in">
+
+      <!-- Question Card -->
+      <div
+        class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 md:p-10 mb-6">
+
+        <!-- Question Meta -->
+        <div class="flex justify-between items-start mb-6">
+          <span id="question-type"
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-100 dark:border-sky-800 capitalize">
+            Technical Question
+          </span>
+          <span id="word-count" class="text-xs text-slate-400 font-mono">0 words</span>
+        </div>
+
+        <!-- Question Text -->
+        <h1 id="question-text" class="text-2xl md:text-3xl font-semibold text-navy dark:text-white leading-tight mb-4">
+          Loading your assessment...
+        </h1>
+
+        <!-- Keywords Hint -->
+        <div id="question-keywords"
+          class="hidden mb-6 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Hint: Consider
+            mentioning</p>
+          <div class="flex flex-wrap gap-2 text-sm text-slate-600 dark:text-slate-300">
+            <!-- Keywords injected here -->
+          </div>
+        </div>
+
+        <!-- Answer Input -->
+        <div class="relative">
+          <textarea id="answer-input"
+            class="w-full min-h-[300px] p-4 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-700 rounded-xl text-base md:text-lg text-navy dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-y"
+            placeholder="Type your answer here..." spellcheck="false"></textarea>
+          <!-- Subtle tip -->
+          <p class="mt-2 text-xs text-slate-400 text-right">Markdown supported</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-between">
+        <button id="back-btn"
+          class="px-6 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-navy dark:hover:text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Previous
+        </button>
+
+        <button id="next-btn"
+          class="px-8 py-3 rounded-xl bg-primary hover:bg-sky-500 text-white font-semibold shadow-lg shadow-sky-500/20 hover:shadow-sky-500/40 transform hover:-translate-y-0.5 transition-all flex items-center gap-2">
+          <span>Next Question</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-6 text-center text-sm text-slate-500 dark:text-slate-600">
+    <p>&copy; 2026 IntiqAI. All rights reserved.</p>
+  </footer>
+
+  <script>
+    (function () {
+      // --- State ---
+      const state = {
+        sessionId: null,
+        questions: [],
+        responses: [],
+        currentIndex: 0,
+      };
+
+      // --- Elements ---
+      const els = {
+        qText: document.getElementById("question-text"),
+        qType: document.getElementById("question-type"),
+        qKeywords: document.getElementById("question-keywords"),
+        qCurrent: document.getElementById("current-q-num"),
+        qTotal: document.getElementById("total-q-num"),
+        input: document.getElementById("answer-input"),
+        nextBtn: document.getElementById("next-btn"),
+        backBtn: document.getElementById("back-btn"),
+        progress: document.getElementById("progressBar"),
+        wordCount: document.getElementById("word-count"),
+        themeToggle: document.getElementById("themeToggle"),
+      };
+
+      // --- Theme Logic ---
+      function initTheme() {
+        const stored = localStorage.getItem("theme");
+        const isDark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", isDark);
+
+        els.themeToggle.addEventListener("click", () => {
+          document.documentElement.classList.toggle("dark");
+          localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+        });
+      }
+
+      // --- UI Updaters ---
+      function updateUI() {
+        const total = state.questions.length || 1;
+        const idx = state.currentIndex;
+        const q = state.questions[idx] || {};
+
+        // Fade effect for text change
+        els.qText.style.opacity = '0';
+        setTimeout(() => {
+          els.qText.textContent = q.text || q.question || "No question loaded.";
+          els.qText.style.opacity = '1';
+        }, 150);
+
+        // Type Badge
+        if (els.qType) {
+          els.qType.textContent = (q.type || "Technical Question").replace(/_/g, " ");
+        }
+
+        // Keywords
+        if (els.qKeywords) {
+          const kw = q.expected_keywords || [];
+          if (kw.length > 0) {
+            els.qKeywords.classList.remove("hidden");
+            const kwContainer = els.qKeywords.querySelector("div");
+            if (kwContainer) {
+              kwContainer.innerHTML = kw.map(k =>
+                `<span class="px-2 py-1 bg-white dark:bg-slate-700/50 rounded-md border border-slate-200 dark:border-slate-600 shadow-sm">${k}</span>`
+              ).join("");
+            }
+          } else {
+            els.qKeywords.classList.add("hidden");
+          }
+        }
+
+        els.qCurrent.textContent = idx + 1;
+        els.qTotal.textContent = total;
+
+        // Input
+        els.input.value = state.responses[idx] || "";
+        updateWordCount();
+
+        // Progress
+        const pct = ((idx + 1) / total) * 100; // Show progress including current
+        els.progress.style.width = pct + "%";
+
+        // Buttons
+        els.backBtn.disabled = idx === 0;
+        if (idx === total - 1) {
+          els.nextBtn.innerHTML = `<span>Submit Assessment</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`;
+        } else {
+          els.nextBtn.innerHTML = `<span>Next Question</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>`;
+        }
+      }
+
+      function updateWordCount() {
+        const txt = els.input.value.trim();
+        const count = txt ? txt.split(/\s+/).length : 0;
+        els.wordCount.textContent = count + " words";
+      }
+
+      // --- Logic ---
+      function saveResponse() {
+        if (!state.questions.length) return;
+        state.responses[state.currentIndex] = els.input.value;
+      }
+
+      async function submit() {
+        const filled = state.responses.filter(r => r && r.trim().length > 0).length;
+        if (filled < state.questions.length) {
+          if (!confirm("You haven't answered all questions. Submit anyway?")) return;
+        }
+
+        els.nextBtn.disabled = true;
+        els.nextBtn.textContent = "Submitting...";
+
+        try {
+          const res = await fetch("api/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session_id: state.sessionId, responses: state.responses })
+          });
+          if (!res.ok) throw new Error("Submission failed");
+
+          window.location.href = "submitting?session_id=" + encodeURIComponent(state.sessionId);
+        } catch (e) {
+          console.error(e);
+          alert("Error submitting. Please try again.");
+          els.nextBtn.disabled = false;
+          updateUI(); // Reset button text
+        }
+      }
+
+      // --- Init ---
+      async function init() {
+        initTheme();
+
+        els.input.addEventListener("input", updateWordCount);
+
+        els.nextBtn.addEventListener("click", () => {
+          saveResponse();
+          if (state.currentIndex >= state.questions.length - 1) {
+            submit();
+          } else {
+            state.currentIndex++;
+            updateUI();
+          }
+        });
+
+        els.backBtn.addEventListener("click", () => {
+          saveResponse();
+          if (state.currentIndex > 0) {
+            state.currentIndex--;
+            updateUI();
+          }
+        });
+
+        // Load Session
+        const params = new URLSearchParams(window.location.search);
+        let sid = params.get("session_id");
+
+        try {
+          let data;
+          if (sid) {
+            const res = await fetch("api/session/" + encodeURIComponent(sid));
+            if (!res.ok) throw new Error("Load failed");
+            data = await res.json();
+          } else {
+            const res = await fetch("api/init", { method: "POST" });
+            if (!res.ok) throw new Error("Init failed");
+            data = await res.json();
+          }
+
+          state.sessionId = data.session_id;
+          state.questions = data.questions || [];
+          // Preserve existing responses if any, else init empty
+          state.responses = data.responses || new Array(state.questions.length).fill("");
+
+          updateUI();
+        } catch (e) {
+          console.error(e);
+          els.qText.textContent = "Error loading assessment. Please refresh.";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    })();
+  </script>
+</body>
+
+</html>

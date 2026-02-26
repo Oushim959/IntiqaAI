@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Voice Interview — IntiqAI</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { primary: "#0ea5e9", navy: "#0f172a" },
+          fontFamily: { sans: ["Outfit", "system-ui", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-navy dark:text-slate-100 min-h-screen transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/candidate/portal" class="text-primary font-semibold">IntiqAI</a>
+      <div class="flex items-center gap-4">
+        <button type="button" id="themeToggle" class="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-slate-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg id="themeIconSun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="themeIconMoon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+        <a href="/candidate/portal" class="text-sm text-slate-600 dark:text-slate-400 hover:text-primary font-medium">← Back to portal</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-8">
+    <div id="content" class="space-y-6">
+      <p class="text-slate-500 dark:text-slate-400">Loading...</p>
+    </div>
+    <div id="authFail" class="hidden text-center py-12">
+      <p class="text-red-600 dark:text-red-400 mb-4">You must pass the FKA before starting the interview.</p>
+      <a href="/candidate/portal" class="text-primary font-medium">Back to portal</a>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      var content = document.getElementById("content");
+      var authFail = document.getElementById("authFail");
+      var mediaRecorder = null;
+      var audioChunks = [];
+      var currentQuestionAudio = null;
+
+      function escapeHtml(s) {
+        if (s == null) return "";
+        var div = document.createElement("div");
+        div.textContent = s;
+        return div.innerHTML;
+      }
+
+      function playQuestionAudio(base64Data) {
+        if (!base64Data) return;
+        if (currentQuestionAudio) {
+          currentQuestionAudio.pause();
+          currentQuestionAudio = null;
+        }
+        var audio = new Audio("data:audio/mp3;base64," + base64Data);
+        currentQuestionAudio = audio;
+        audio.play().catch(function() {});
+      }
+
+      function renderStart() {
+        content.innerHTML = "<div class='bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-sm p-8'>" +
+          "<h1 class='text-2xl font-semibold text-navy dark:text-slate-100 mb-2'>Voice Interview</h1>" +
+          "<p class='text-slate-600 dark:text-slate-400 mb-6'>This is an AI-powered voice interview. You will hear each question and answer using your microphone. Use a quiet environment.</p>" +
+          "<ul class='list-disc list-inside text-slate-600 dark:text-slate-400 text-sm space-y-2 mb-6'>" +
+          "<li>Allow microphone access when prompted.</li>" +
+          "<li>Click the record button to answer each question.</li>" +
+          "<li>Click stop when you have finished speaking.</li>" +
+          "</ul>" +
+          "<button type='button' id='btnStart' class='px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 shadow-lg shadow-primary/20'>Start Interview</button>" +
+          "</div>";
+        content.classList.remove("hidden");
+        authFail.classList.add("hidden");
+        document.getElementById("btnStart").addEventListener("click", startVoiceInterview);
+      }
+
+      function startVoiceInterview() {
+        var btn = document.getElementById("btnStart");
+        btn.disabled = true;
+        btn.textContent = "Starting...";
+        fetch("/api/interview/voice/start", { method: "POST", credentials: "include" })
+          .then(function(r) {
+            if (!r.ok) return r.json().then(function(d) { throw new Error(d.detail || "Start failed"); });
+            return r.json();
+          })
+          .then(function(data) {
+            showQuestion(data.question_text, data.question_audio_base64, false);
+            if (data.question_audio_base64) {
+              playQuestionAudio(data.question_audio_base64);
+            }
+          })
+          .catch(function(err) {
+            btn.disabled = false;
+            btn.textContent = "Start Interview";
+            alert(err.message || "Failed to start interview.");
+          });
+      }
+
+      function showQuestion(questionText, questionAudioBase64, isProcessing) {
+        var html = "<div class='bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-sm p-8'>";
+        html += "<h2 class='text-lg font-semibold text-navy dark:text-slate-100 mb-4'>Question</h2>";
+        html += "<p class='text-slate-700 dark:text-slate-300 mb-6 leading-relaxed'>" + escapeHtml(questionText) + "</p>";
+        if (questionAudioBase64) {
+          html += "<p class='text-sm text-slate-500 dark:text-slate-400 mb-2'>Listen:</p>";
+          html += "<button type='button' id='btnPlay' class='px-4 py-2.5 bg-primary/10 text-primary font-medium rounded-xl hover:bg-primary/20 mb-6'>Play question</button>";
+        } else if (questionText) {
+          html += "<p class='text-sm text-slate-400 dark:text-slate-500 mb-6'>Audio unavailable — please read the question above.</p>";
+        }
+        html += "<div class='border-t border-slate-200 dark:border-slate-700 pt-6'>";
+        html += "<p class='text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'>Your answer</p>";
+        if (isProcessing) {
+          html += "<p class='text-slate-500 dark:text-slate-400'>Processing your answer...</p>";
+        } else {
+          html += "<button type='button' id='btnRecord' class='px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 " +
+            "bg-red-500 hover:bg-red-600 text-white shadow-lg'><span id='recordLabel'>Record answer</span></button>";
+          html += "<p id='recordHint' class='text-sm text-slate-500 dark:text-slate-400 mt-2'>Click to start recording, then click again to stop and send.</p>";
+        }
+        html += "</div></div>";
+        content.innerHTML = html;
+        if (questionAudioBase64) {
+          document.getElementById("btnPlay").addEventListener("click", function() { playQuestionAudio(questionAudioBase64); });
+        }
+        if (!isProcessing && document.getElementById("btnRecord")) {
+          setupRecordButton(questionText, questionAudioBase64);
+        }
+      }
+
+      function setupRecordButton(questionText, questionAudioBase64) {
+        var btn = document.getElementById("btnRecord");
+        var label = document.getElementById("recordLabel");
+        var hint = document.getElementById("recordHint");
+        var recording = false;
+
+        btn.addEventListener("click", function() {
+          if (recording) {
+            stopRecording(function(blob) {
+              submitAnswer(blob, questionText, questionAudioBase64);
+            });
+            recording = false;
+            label.textContent = "Record answer";
+            hint.textContent = "Click to start recording, then click again to stop and send.";
+            btn.classList.remove("bg-red-600");
+            btn.classList.add("bg-red-500");
+            return;
+          }
+          startRecording();
+          recording = true;
+          label.textContent = "Stop and send";
+          hint.textContent = "Recording... Click when you are done speaking.";
+          btn.classList.remove("bg-red-500");
+          btn.classList.add("bg-red-600");
+        });
+      }
+
+      function startRecording() {
+        audioChunks = [];
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(function(stream) {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = function(e) {
+              if (e.data.size > 0) audioChunks.push(e.data);
+            };
+            mediaRecorder.onstop = function() {
+              stream.getTracks().forEach(function(t) { t.stop(); });
+            };
+            mediaRecorder.start();
+          })
+          .catch(function(err) {
+            alert("Microphone access is required. Please allow and try again.");
+          });
+      }
+
+      function stopRecording(cb) {
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+          if (cb) cb(null);
+          return;
+        }
+        mediaRecorder.onstop = function() {
+          var mime = mediaRecorder.mimeType || "audio/webm";
+          var blob = new Blob(audioChunks, { type: mime });
+          if (cb) cb(blob);
+        };
+        mediaRecorder.stop();
+      }
+
+      function submitAnswer(blob, questionText, questionAudioBase64) {
+        if (!blob || blob.size < 1000) {
+          alert("Recording too short. Please try again.");
+          return;
+        }
+        showQuestion(questionText, questionAudioBase64, true);
+        var formData = new FormData();
+        formData.append("audio", blob, "answer.webm");
+        fetch("/api/interview/voice/answer", {
+          method: "POST",
+          credentials: "include",
+          body: formData
+        })
+          .then(function(r) {
+            if (!r.ok) {
+              return r.text().then(function(t) {
+                try {
+                  var d = JSON.parse(t);
+                  throw new Error(d.detail || d.error || "Submit failed");
+                } catch (e) {
+                  if (e instanceof SyntaxError) throw new Error(t || "Request failed");
+                  throw e;
+                }
+              });
+            }
+            return r.json();
+          })
+          .then(function(data) {
+            if (data.done) {
+              content.innerHTML = "<div class='bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-sm p-10 text-center'>" +
+                "<h2 class='text-xl font-semibold text-navy dark:text-slate-100 mb-2'>Interview complete</h2>" +
+                "<p class='text-slate-600 dark:text-slate-400 mb-6'>Thank you. Your voice interview has been submitted.</p>" +
+                "<a href='/candidate/portal' class='inline-block px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 shadow-lg shadow-primary/20'>Back to portal</a>" +
+                "</div>";
+            } else {
+              showQuestion(data.question_text || "", data.question_audio_base64 || null, false);
+              if (data.question_audio_base64) {
+                playQuestionAudio(data.question_audio_base64);
+              }
+            }
+          })
+          .catch(function(err) {
+            showQuestion(questionText, questionAudioBase64, false);
+            alert(err.message || "Failed to send answer. Try again.");
+          });
+      }
+
+      fetch("/api/candidate/me", { credentials: "include" })
+        .then(function(r) {
+          if (r.status === 401) {
+            content.classList.add("hidden");
+            authFail.classList.remove("hidden");
+            return null;
+          }
+          return r.json();
+        })
+        .then(function(me) {
+          if (!me) return;
+          var status = me.status || "";
+          if (status !== "fka_done" && status !== "interview_started" && status !== "interview_done") {
+            content.innerHTML = "<div class='bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-xl p-6'><p class='text-amber-800 dark:text-amber-200'>You need to pass the Fundamental Knowledge Assessment before starting the interview.</p><a href='/candidate/portal' class='inline-block mt-4 text-primary font-medium'>← Back to portal</a></div>";
+            content.classList.remove("hidden");
+            authFail.classList.add("hidden");
+            return;
+          }
+          if (status === "interview_done") {
+            content.innerHTML = "<div class='bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-sm p-10 text-center'>" +
+              "<h2 class='text-xl font-semibold text-navy dark:text-slate-100 mb-2'>Interview already completed</h2>" +
+              "<p class='text-slate-600 dark:text-slate-400 mb-6'>You have already completed the voice interview.</p>" +
+              "<a href='/candidate/portal' class='inline-block px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 shadow-lg shadow-primary/20'>Back to portal</a>" +
+              "</div>";
+            content.classList.remove("hidden");
+            authFail.classList.add("hidden");
+            return;
+          }
+          renderStart();
+        })
+        .catch(function() {
+          content.innerHTML = "<p class='text-red-600 dark:text-red-400'>Failed to load.</p>";
+          content.classList.remove("hidden");
+        });
+      (function themeInit() {
+        var stored = localStorage.getItem("theme");
+        var dark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) document.documentElement.classList.add("dark"); else document.documentElement.classList.remove("dark");
+        var btn = document.getElementById("themeToggle");
+        if (btn) btn.addEventListener("click", function() {
+          document.documentElement.classList.toggle("dark");
+          localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+        });
+      })();
+    })();
+  </script>
+</body>
+</html>

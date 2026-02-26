@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your journey — IntiqAI</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { primary: "#0ea5e9", navy: "#0f172a" },
+          fontFamily: { sans: ["Outfit", "system-ui", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+  <style>
+    .step-card {
+      transition: box-shadow .2s, border-color .2s;
+    }
+
+    .step-card:hover {
+      box-shadow: 0 10px 30px -10px rgba(15, 23, 42, .12);
+      border-color: rgba(14, 165, 233, .3);
+    }
+
+    .dark .step-card:hover {
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .3);
+    }
+
+    .step-done {
+      border-color: rgba(16, 185, 129, .4);
+      background: linear-gradient(to bottom, #f0fdf4 0%, #fff 100%);
+    }
+
+    .dark .step-done {
+      background: linear-gradient(to bottom, rgba(6, 95, 70, .2) 0%, rgb(30 41 59) 100%);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-navy dark:text-slate-100 min-h-screen transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+    <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="/candidate/portal" class="text-primary font-semibold text-lg">IntiqAI</a>
+      <div class="flex items-center gap-4">
+        <span id="userName" class="text-sm text-slate-600 dark:text-slate-400 font-medium"></span>
+        <button type="button" id="themeToggle"
+          class="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-slate-100 transition-colors"
+          title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg id="themeIconSun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="themeIconMoon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+        <button type="button" id="logout"
+          class="text-sm text-slate-600 dark:text-slate-400 hover:text-navy dark:hover:text-slate-100 font-medium">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-10">
+    <h1 class="text-2xl font-semibold text-navy dark:text-slate-100 mb-2">Your journey</h1>
+    <p class="text-slate-600 dark:text-slate-400 text-sm mb-8">Complete each step to finish your application.</p>
+
+    <div id="content" class="space-y-6">
+      <p class="text-slate-500 dark:text-slate-400">Loading...</p>
+    </div>
+
+    <div id="authFail" class="hidden text-center py-16">
+      <p class="text-red-600 dark:text-red-400 mb-4">Session expired.</p>
+      <a href="/candidate/login" class="text-primary font-medium">Sign in again</a>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var content = document.getElementById("content");
+      var authFail = document.getElementById("authFail");
+      var userName = document.getElementById("userName");
+
+      function render(status) {
+        status = status || "shortlisted";
+        var name = (window.__candidate && (window.__candidate.first_name + " " + window.__candidate.last_name).trim()) || "Candidate";
+        userName.textContent = name;
+
+        var html = "";
+        var fkaDone = status === "fka_done" || status === "interview_started" || status === "interview_done";
+        var interviewDone = status === "interview_done";
+        var canStartFka = status === "shortlisted" || status === "qualified" || status === "fka_started";
+
+        if (canStartFka) {
+          html += "<div class='step-card bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 p-6'>";
+          html += "<div class='flex items-start gap-4'><div class='w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold'>1</div>";
+          html += "<div><h2 class='font-semibold text-navy dark:text-slate-100 mb-1'>Fundamental Knowledge Assessment</h2>";
+          html += "<p class='text-sm text-slate-600 dark:text-slate-400 mb-4'>Complete the knowledge assessment. You can resume if you already started.</p>";
+          html += "<button type='button' id='startFka' class='px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 shadow-lg shadow-primary/20'>" + (status === "fka_started" ? "Continue FKA" : "Start FKA") + "</button></div></div></div>";
+        }
+
+        if (status === "fka_failed") {
+          html += "<div class='step-card bg-amber-50/80 dark:bg-amber-900/30 rounded-xl border-2 border-amber-200 dark:border-amber-700 p-6'>";
+          html += "<div class='flex items-start gap-4'><div class='w-10 h-10 rounded-lg bg-amber-200/80 dark:bg-amber-700/50 flex items-center justify-center text-amber-800 dark:text-amber-200 font-semibold'>1</div>";
+          html += "<div><h2 class='font-semibold text-navy dark:text-slate-100 mb-1'>FKA completed</h2>";
+          html += "<p class='text-sm text-slate-600 dark:text-slate-400 mb-4'>You did not pass the knowledge assessment at this time. Your credentials remain active so you can view your results.</p>";
+          html += "<a href='/candidate/fka/result' class='inline-block px-5 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-medium rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600'>View FKA results</a></div></div></div>";
+        }
+
+        if (fkaDone) {
+          html += "<div class='step-card step-done bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 p-6'>";
+          html += "<div class='flex items-start gap-4'><div class='w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-semibold'>✓</div>";
+          html += "<div><h2 class='font-semibold text-navy dark:text-slate-100 mb-1'>FKA completed</h2>";
+          html += "<p class='text-sm text-slate-600 dark:text-slate-400 mb-4'>You have passed the assessment.</p>";
+          html += "<a href='/candidate/fka/result' class='inline-block px-5 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-medium rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 mr-2'>View Results</a></div></div></div>";
+        }
+
+        if (fkaDone) {
+          html += "<div class='step-card bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 p-6 mt-6'>";
+          html += "<div class='flex items-start gap-4'><div class='w-10 h-10 rounded-lg " + (interviewDone ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300" : "bg-primary/10 text-primary") + " flex items-center justify-center font-semibold'>" + (interviewDone ? "✓" : "2") + "</div>";
+          html += "<div><h2 class='font-semibold text-navy dark:text-slate-100 mb-1'>AI Voice Interview</h2>";
+          html += "<p class='text-sm text-slate-600 dark:text-slate-400 mb-4'>Take the structured voice interview. You will hear questions and answer with your microphone.</p>";
+          if (interviewDone) {
+            html += "<p class='text-sm text-emerald-700 dark:text-emerald-300 font-medium'>Interview completed</p>";
+          } else {
+            html += "<button type='button' id='startInterview' class='px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 shadow-lg shadow-primary/20'>Start / Continue Interview</button>";
+          }
+          html += "</div></div></div>";
+        }
+
+        content.innerHTML = html;
+        content.classList.remove("hidden");
+        authFail.classList.add("hidden");
+
+        var startFka = document.getElementById("startFka");
+        if (startFka) {
+          startFka.addEventListener("click", function () {
+            startFka.disabled = true;
+            startFka.textContent = "Opening...";
+            fetch("/api/candidate/start_fka", { method: "POST", credentials: "include" })
+              .then(function (r) {
+                if (!r.ok) return r.json().then(function (d) { throw new Error(d.detail || "FKA not available"); });
+                return r.json();
+              })
+              .then(function (d) {
+                var url = d.fka_url || ("/fka/assessment?session_id=" + (d.session_id || ""));
+                if (url && d.session_id) window.location.href = url;
+                else throw new Error("No session");
+              })
+              .catch(function (err) {
+                startFka.disabled = false;
+                startFka.textContent = status === "fka_started" ? "Continue FKA" : "Start FKA";
+                alert(err.message || "Could not start FKA. Try again or contact HR.");
+              });
+          });
+        }
+        var startInterview = document.getElementById("startInterview");
+        if (startInterview) {
+          startInterview.addEventListener("click", function () { window.location.href = "/candidate/interview"; });
+        }
+      }
+
+      fetch("/api/candidate/me", { credentials: "include" })
+        .then(function (r) {
+          if (r.status === 401) {
+            content.classList.add("hidden");
+            authFail.classList.remove("hidden");
+            return null;
+          }
+          return r.json();
+        })
+        .then(function (data) {
+          if (!data) return;
+          window.__candidate = data;
+          render(data.status);
+        })
+        .catch(function () {
+          content.innerHTML = "<p class='text-red-600 dark:text-red-400'>Failed to load.</p>";
+        });
+
+      document.getElementById("logout").addEventListener("click", function () {
+        fetch("/api/auth/candidate_logout", { method: "POST", credentials: "include" }).then(function () { window.location.href = "/candidate/login"; });
+      });
+      (function themeInit() {
+        var stored = localStorage.getItem("theme");
+        var dark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) document.documentElement.classList.add("dark"); else document.documentElement.classList.remove("dark");
+        var btn = document.getElementById("themeToggle");
+        if (btn) btn.addEventListener("click", function () {
+          document.documentElement.classList.toggle("dark");
+          localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+        });
+      })();
+    })();
+  </script>
+</body>
+
+</html>

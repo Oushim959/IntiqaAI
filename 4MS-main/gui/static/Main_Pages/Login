@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IntiqAI Secure Login Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        .sans-font {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex items-center justify-center p-4">
+<!-- Main Container -->
+<div class="layout-container flex h-full grow flex-col items-center justify-center w-full max-w-[1200px]">
+<!-- Login Card -->
+<div class="bg-white dark:bg-[#1a2430] shadow-2xl rounded-xl w-full max-w-[480px] flex flex-col overflow-hidden border border-[#e5e7eb] dark:border-[#2d3a4b]">
+<!-- Header Section -->
+<div class="flex flex-col items-center pt-10 pb-6 px-8">
+<!-- Logo and Icon Group -->
+<div class="flex items-center gap-3 mb-4">
+<div class="text-primary size-10 flex items-center justify-center">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h1 class="text-[#111418] dark:text-white text-3xl font-bold leading-tight tracking-tight font-display">IntiqAI</h1>
+</div>
+<!-- Security Indicator -->
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-xl">verified_user</span>
+<h2 class="text-[#111418] dark:text-gray-200 text-lg font-semibold font-display text-center">Secure Login Portal</h2>
+</div>
+<p class="text-[#617289] dark:text-gray-400 text-sm text-center px-6 leading-relaxed sans-font">
+                    Secure access to your evaluation workspace
+                </p>
+</div>
+<!-- Form Section -->
+<div class="px-8 pb-10 flex flex-col gap-6">
+<!-- Username Field -->
+<div class="flex flex-col gap-2">
+<label class="sans-font text-[#111418] dark:text-gray-200 text-sm font-semibold">Email or Username</label>
+<input id="loginEmail" class="form-input w-full rounded-lg text-[#111418] dark:text-white border border-[#dbe0e6] dark:border-[#3d4d5f] bg-white dark:bg-[#1a2430] focus:ring-2 focus:ring-primary focus:border-primary h-12 px-4 sans-font transition-all outline-none placeholder:text-[#617289] dark:placeholder:text-gray-500" placeholder="Enter your credentials" type="text"/>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<label class="sans-font text-[#111418] dark:text-gray-200 text-sm font-semibold">Password</label>
+<a class="sans-font text-primary text-xs font-medium hover:underline" href="#">Forgot password?</a>
+</div>
+<div class="relative">
+<input id="loginPassword" class="form-input w-full rounded-lg text-[#111418] dark:text-white border border-[#dbe0e6] dark:border-[#3d4d5f] bg-white dark:bg-[#1a2430] focus:ring-2 focus:ring-primary focus:border-primary h-12 pl-4 pr-12 sans-font transition-all outline-none placeholder:text-[#617289] dark:placeholder:text-gray-500" placeholder="••••••••" type="password"/>
+<button id="togglePassword" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#617289] hover:text-[#111418] dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined" id="togglePasswordIcon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Action Button -->
+<button id="signInBtn" class="bg-primary hover:bg-[#0f5bcc] active:scale-[0.98] transition-all text-white font-bold py-3.5 rounded-lg sans-serif text-sm tracking-wide shadow-md flex items-center justify-center gap-2 mt-2">
+<span class="material-symbols-outlined text-lg">lock_open</span>
+                    Sign In
+                </button>
+<!-- Information Footer -->
+<div class="border-t border-[#f0f2f4] dark:border-[#2d3a4b] pt-6 flex flex-col gap-3">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[#617289] text-sm mt-0.5">info</span>
+<p class="text-[#617289] dark:text-gray-400 text-xs leading-normal sans-font">
+                            Credentials are provided via email. Access is determined by your current evaluation stage.
+                        </p>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[#617289] text-sm mt-0.5">security</span>
+<p class="text-[#617289] dark:text-gray-400 text-xs leading-normal sans-font">
+                            This session is protected by end-to-end encryption and multi-factor authentication protocols.
+                        </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Technical Support -->
+<footer class="mt-8 text-[#617289] dark:text-gray-500 text-sm sans-font flex flex-col items-center gap-2">
+<p>© 2024 IntiqAI Systems. All rights reserved.</p>
+<div class="flex gap-4">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<span class="opacity-30">|</span>
+<a class="hover:text-primary transition-colors" href="#">Technical Support</a>
+</div>
+</footer>
+</div>
+<script>
+// Simple front-end login validation for candidate portal
+(function () {
+  const VALID_EMAIL = "oshim959@gmail.com";
+  const CANDIDATE_PASSWORD = "cuda2025";
+  const HR_PASSWORD = "cuda2026";
+
+  const emailInput = document.getElementById("loginEmail");
+  const passwordInput = document.getElementById("loginPassword");
+  const signInBtn = document.getElementById("signInBtn");
+  const togglePasswordBtn = document.getElementById("togglePassword");
+  const togglePasswordIcon = document.getElementById("togglePasswordIcon");
+
+  function handleLogin() {
+    const email = (emailInput?.value || "").trim();
+    const password = passwordInput?.value || "";
+
+    const isLocal =
+      window.location.origin.includes("localhost") ||
+      window.location.origin.includes("127.0.0.1");
+
+    if (email === VALID_EMAIL && password === CANDIDATE_PASSWORD) {
+      // Successful candidate login -> go to standalone FKA web app
+      window.location.href = "http://127.0.0.1:8500/";
+    } else if (email === VALID_EMAIL && password === HR_PASSWORD) {
+      // Successful HR login -> go to HR landing
+      if (isLocal) {
+        window.location.href = "/hr";
+      } else {
+        window.location.href = "HR_Landing_Page";
+      }
+    } else {
+      // Failed -> show invalid screen
+      if (isLocal) {
+        window.location.href = "/candidate/login_failed";
+      } else {
+        window.location.href = "Login_Failed";
+      }
+    }
+  }
+
+  if (signInBtn) {
+    signInBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      handleLogin();
+    });
+  }
+
+  // Toggle password visibility
+  if (togglePasswordBtn && passwordInput && togglePasswordIcon) {
+    togglePasswordBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      const isHidden = passwordInput.type === "password";
+      passwordInput.type = isHidden ? "text" : "password";
+      togglePasswordIcon.textContent = isHidden ? "visibility_off" : "visibility";
+    });
+  }
+
+  // Allow Enter key to submit
+  [emailInput, passwordInput].forEach(function (el) {
+    if (el) {
+      el.addEventListener("keyup", function (e) {
+        if (e.key === "Enter") {
+          handleLogin();
+        }
+      });
+    }
+  });
+})();
+</script>
+</body></html>

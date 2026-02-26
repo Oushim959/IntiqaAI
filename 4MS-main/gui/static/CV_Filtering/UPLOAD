@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>IntiqAI - CV Filtering Setup</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#136dec",
+            "background-light": "#f6f7f8",
+            "background-dark": "#101822",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .accordion-toggle:checked+label+.accordion-content {
+      max-height: 500px;
+    }
+
+    .dashed-border {
+      background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='%23136DECAA' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+    }
+  </style>
+</head>
+
+<body
+  class="bg-background-light dark:bg-background-dark min-h-screen font-display text-slate-900 dark:text-slate-100 antialiased">
+  <!-- Header / Navigation -->
+  <nav class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 px-6 sticky top-0 z-10">
+    <div class="max-w-5xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+          <span class="text-white font-bold text-xl">I</span>
+        </div>
+        <span class="text-xl font-bold tracking-tight text-slate-800 dark:text-white">IntiqAI</span>
+      </div>
+      <div class="flex items-center gap-4 text-sm font-medium text-slate-500">
+        <span class="flex items-center gap-1"><i class="material-icons text-sm">settings</i> Configuration</span>
+        <span class="text-slate-300">/</span>
+        <span class="text-primary">CV Setup</span>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-3xl mx-auto py-12 px-6">
+    <!-- Main Card Container -->
+    <div
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
+      <!-- Page Title Header -->
+      <div class="p-8 border-b border-slate-100 dark:border-slate-800">
+        <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
+          <span class="text-primary">📋</span> CV Filtering Setup
+        </h1>
+        <p class="mt-2 text-slate-500 dark:text-slate-400 text-sm">
+          Configure the AI analysis parameters by providing the source directory and the target job description.
+        </p>
+      </div>
+      <div class="p-8 space-y-10">
+        <!-- Section 1: Source -->
+        <section class="space-y-4">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">📁 Source
+              Directory</label>
+            <span class="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded">Required</span>
+          </div>
+          <div class="flex group">
+            <!-- Hidden folder input (Edge/Chrome support) -->
+            <input id="cvFilesInput" type="file" webkitdirectory multiple class="hidden" />
+            <input id="cvSourceDisplay"
+              class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-l-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm font-mono"
+              placeholder="Select a folder with CV PDFs…" type="text" readonly />
+            <label for="cvFilesInput"
+              class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-r-lg font-medium text-sm flex items-center gap-2 transition-colors cursor-pointer">
+              <i class="material-icons text-base">folder_open</i>
+              Browse
+            </label>
+          </div>
+          <!-- Success Alert (updated dynamically) -->
+          <div id="cvSuccessAlert"
+            class="hidden flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-lg">
+            <i class="material-icons text-emerald-600 dark:text-emerald-400 text-lg">check_circle</i>
+            <div>
+              <p class="text-sm font-medium text-emerald-800 dark:text-emerald-300">Directory found</p>
+              <p id="cvSuccessText" class="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5"></p>
+            </div>
+          </div>
+          <!-- Accordion: View PDF Files -->
+          <div id="cvFilesAccordion"
+            class="hidden border border-slate-100 dark:border-slate-800 rounded-lg overflow-hidden">
+            <input class="hidden accordion-toggle" id="acc-pdfs" type="checkbox" />
+            <label
+              class="flex items-center justify-between p-3 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              for="acc-pdfs">
+              <span class="text-xs font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                <i class="material-icons text-sm">list</i> View detected PDF files
+              </span>
+              <i class="material-icons text-slate-400 text-sm transition-transform duration-300">expand_more</i>
+            </label>
+            <div class="accordion-content bg-white dark:bg-slate-900">
+              <ul id="cvFileList" class="p-4 space-y-2 text-xs font-mono text-slate-500 dark:text-slate-400">
+              </ul>
+            </div>
+          </div>
+        </section>
+        <!-- Section 2: Criteria -->
+        <section class="space-y-4">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">📝 Job
+              Description</label>
+            <span class="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded">Required</span>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">Job Description PDF</label>
+            <input id="jdFileInput" type="file" accept=".pdf" class="hidden" />
+            <div class="flex">
+              <input id="jdDisplay"
+                class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-l-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm font-mono"
+                placeholder="Select a JD PDF file…" type="text" readonly />
+              <label for="jdFileInput" id="jdBrowseBtn"
+                class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-r-lg font-medium text-sm flex items-center gap-2 transition-colors cursor-pointer">
+                <i class="material-icons text-base">cloud_upload</i>
+                Browse
+              </label>
+            </div>
+          </div>
+          <!-- Accordion: Preview JD -->
+          <div class="border border-slate-100 dark:border-slate-800 rounded-lg overflow-hidden">
+            <input class="hidden accordion-toggle" id="acc-jd" type="checkbox" />
+            <label
+              class="flex items-center justify-between p-3 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              for="acc-jd">
+              <span class="text-xs font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                <i class="material-icons text-sm">description</i> Preview uploaded JD
+              </span>
+              <i class="material-icons text-slate-400 text-sm transition-transform duration-300">expand_more</i>
+            </label>
+            <div class="accordion-content bg-white dark:bg-slate-900">
+              <div
+                class="p-4 bg-slate-50 dark:bg-slate-950/50 m-2 rounded border border-slate-100 dark:border-slate-800">
+                <p id="jdPreviewText" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic">
+                  No job description uploaded yet.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!-- Footer Actions -->
+      <div class="border-t border-slate-100 dark:border-slate-800 p-8 bg-slate-50/50 dark:bg-slate-800/30">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <button id="startAnalysisBtn"
+            class="w-full sm:w-auto px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-bold text-sm shadow-md shadow-primary/20 flex items-center justify-center gap-2 transition-all active:scale-95">
+            <i class="material-icons text-lg">rocket_launch</i>
+            Start Analysis
+          </button>
+          <button id="viewCandidateListBtn"
+            class="w-full sm:w-auto px-6 py-3 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all">
+            <i class="material-icons text-lg">groups</i>
+            View Candidate List
+          </button>
+        </div>
+        <!-- Download Results (Hidden until run complete) -->
+        <div id="downloadResultsArea"
+          class="hidden flex flex-col sm:flex-row items-center justify-center gap-4 w-full mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-lg">
+          <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Analysis Complete! Download
+            Results:</span>
+          <div class="flex items-center gap-3">
+            <a href="/api/cv_filter/download/High_Scoring_Candidates.xlsx" target="_blank"
+              class="px-4 py-2 bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg font-semibold text-xs flex items-center gap-2 transition-all shadow-sm">
+              <i class="material-icons text-sm">download</i> High Scores.xlsx
+            </a>
+            <a href="/api/cv_filter/download/Resume_Screening_Results.xlsx" target="_blank"
+              class="px-4 py-2 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg font-semibold text-xs flex items-center gap-2 transition-all shadow-sm">
+              <i class="material-icons text-sm">download</i> All Results.xlsx
+            </a>
+          </div>
+        </div>
+        <div
+          class="mt-6 flex items-center justify-center gap-4 text-[10px] text-slate-400 uppercase tracking-widest font-medium">
+          <span class="flex items-center gap-1"><i class="material-icons text-[12px]">lock</i> Secure SSL</span>
+          <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+          <span class="flex items-center gap-1"><i class="material-icons text-[12px]">auto_awesome</i> AI Engine
+            v4.2</span>
+        </div>
+      </div>
+    </div>
+    <!-- Help Info -->
+    <div class="mt-8 flex items-center justify-center gap-6 text-slate-400 dark:text-slate-500">
+      <a class="text-xs hover:text-primary transition-colors flex items-center gap-1" href="#">
+        <i class="material-icons text-sm">help_outline</i> Documentation
+      </a>
+      <a class="text-xs hover:text-primary transition-colors flex items-center gap-1" href="#">
+        <i class="material-icons text-sm">support_agent</i> Contact Support
+      </a>
+    </div>
+  </main>
+  <div class="fixed bottom-6 right-6">
+    <div
+      class="bg-white dark:bg-slate-900 p-3 rounded-full shadow-lg border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+      <div class="flex items-center gap-2 pr-3 border-r border-slate-100 dark:border-slate-800">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">System Ready</span>
+      </div>
+      <img alt="User Avatar" class="w-6 h-6 rounded-full grayscale hover:grayscale-0 transition-all cursor-pointer"
+        data-alt="Professional HR specialist profile photo"
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJT4m6vGJWt1nsuVlIr0GbA--j42vNrcz-06G6HAqz72hvNzT1KE9rO_5RuzA7aWO7KxKYtryqq1oHtQEBEwUAb2rwpWwdY3ib4hyNYEokwZo2zLpGxRfwNyCEqdzH5o_SQaSJyg9uU9lDL5iGhS814awlA3Puea1pZAoRMy92bvLfJU9subHu_k5rpJ9x2a9bSuDIUQqRDOPm-K1-OVIUdqCCnKbrhUT-3_jMuN_CGUoLvfUL7EMx_lToDwMW1IDNOZJ2qdopZ9A" />
+    </div>
+  </div>
+  <script>
+      // Wire CV upload actions into backend + HR dashboard views
+      (function () {
+        const startBtn = document.getElementById("startAnalysisBtn");
+        const viewListBtn = document.getElementById("viewCandidateListBtn");
+        const cvFilesInput = document.getElementById("cvFilesInput");
+        const cvBrowseBtn = document.getElementById("cvBrowseBtn"); // label
+        const cvSourceDisplay = document.getElementById("cvSourceDisplay");
+        const jdFileInput = document.getElementById("jdFileInput");
+        const jdBrowseBtn = document.getElementById("jdBrowseBtn");
+        const jdDisplay = document.getElementById("jdDisplay");
+        const cvSuccessAlert = document.getElementById("cvSuccessAlert");
+        const cvSuccessText = document.getElementById("cvSuccessText");
+        const cvFilesAccordion = document.getElementById("cvFilesAccordion");
+        const cvFileList = document.getElementById("cvFileList");
+        const jdPreviewText = document.getElementById("jdPreviewText");
+
+        function goToDashboard() {
+          const isLocal =
+            window.location.origin.includes("localhost") ||
+            window.location.origin.includes("127.0.0.1");
+          if (isLocal) {
+            window.location.href = "/hr/cv_filtering";
+          } else {
+            window.location.href = "CV_Dashboard";
+          }
+        }
+
+        async function runAnalysis() {
+          const isLocal =
+            window.location.origin.includes("localhost") ||
+            window.location.origin.includes("127.0.0.1");
+
+          if (!isLocal) {
+            // When not running via FastAPI, just jump to the dashboard mock
+            goToDashboard();
+            return;
+          }
+
+          if (!cvFilesInput || !jdFileInput) {
+            alert("File inputs not available in this browser.");
+            return;
+          }
+
+          const cvFiles = Array.from(cvFilesInput.files || []).filter((f) =>
+            f.name.toLowerCase().endsWith(".pdf")
+          );
+          const jdFile = jdFileInput.files && jdFileInput.files[0];
+
+          if (!cvFiles.length || !jdFile) {
+            alert("Please select a CV folder (PDFs) and a JD PDF file.");
+            return;
+          }
+
+          try {
+            const formData = new FormData();
+            cvFiles.forEach((file) => formData.append("cvs", file));
+            formData.append("jd", jdFile);
+
+            const resp = await fetch("/api/cv_filter/upload-run", {
+              method: "POST",
+              body: formData,
+            });
+
+            const data = await resp.json();
+            if (!resp.ok) {
+              throw new Error(data.detail || "CV filtering failed");
+            }
+
+            // Show success message and download buttons
+            const downloadArea = document.getElementById("downloadResultsArea");
+            if (downloadArea) {
+              downloadArea.classList.remove("hidden");
+              // Update text to show count
+              const countSpan = downloadArea.querySelector("span");
+              if (countSpan) countSpan.textContent = `Analysis Complete! Processed ${data.total_resumes} resumes. Download Results:`;
+              downloadArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+              alert(`CV filtering completed. Processed ${data.total_resumes} resumes.`);
+            }
+
+            // Optional: Redirect to dashboard after a longer delay (e.g., 10s) or let user stay
+            // setTimeout(goToDashboard, 10000);
+          } catch (err) {
+            console.error(err);
+            alert("Error running CV filtering: " + err);
+          }
+        }
+
+        // Wire browse buttons to hidden inputs
+        if (cvFilesInput && cvSourceDisplay) {
+          cvFilesInput.addEventListener("change", function () {
+            const files = Array.from(cvFilesInput.files || []);
+            if (files.length) {
+              // Show pseudo "folder" as first path segment
+              const sample = files[0].webkitRelativePath || files[0].name;
+              const folder = sample.split("/")[0] || "Selected CVs";
+              cvSourceDisplay.value = `${folder} (${files.length} file(s))`;
+
+              // Update success alert and list
+              if (cvSuccessAlert && cvSuccessText) {
+                cvSuccessAlert.classList.remove("hidden");
+                cvSuccessText.textContent = `${files.length} PDF file(s) selected for processing.`;
+              }
+              if (cvFilesAccordion && cvFileList) {
+                cvFilesAccordion.classList.remove("hidden");
+                cvFileList.innerHTML = "";
+                files.slice(0, 20).forEach(function (file) {
+                  const li = document.createElement("li");
+                  li.className = "flex items-center gap-2";
+                  li.innerHTML = `<i class="material-icons text-[10px]">picture_as_pdf</i> ${file.name}`;
+                  cvFileList.appendChild(li);
+                });
+                if (files.length > 20) {
+                  const more = document.createElement("li");
+                  more.className = "text-primary italic";
+                  more.textContent = `+ ${files.length - 20} more files`;
+                  cvFileList.appendChild(more);
+                }
+              }
+            } else {
+              cvSourceDisplay.value = "";
+              if (cvSuccessAlert) cvSuccessAlert.classList.add("hidden");
+              if (cvFilesAccordion) cvFilesAccordion.classList.add("hidden");
+            }
+          });
+        }
+
+        if (jdFileInput && jdDisplay) {
+          jdFileInput.addEventListener("change", function () {
+            const file = jdFileInput.files && jdFileInput.files[0];
+            jdDisplay.value = file ? file.name : "";
+
+            const isLocal =
+              window.location.origin.includes("localhost") ||
+              window.location.origin.includes("127.0.0.1");
+            if (file && isLocal && jdPreviewText) {
+              const formData = new FormData();
+              formData.append("jd", file);
+              fetch("/api/cv_filter/jd_preview", {
+                method: "POST",
+                body: formData,
+              })
+                .then((r) => r.json())
+                .then((data) => {
+                  if (data.preview) {
+                    jdPreviewText.textContent = data.preview;
+                  }
+                })
+                .catch(() => {
+                  jdPreviewText.textContent = "Preview not available.";
+                });
+            } else if (jdPreviewText && !file) {
+              jdPreviewText.textContent = "No job description uploaded yet.";
+            }
+          });
+        }
+
+        if (startBtn) {
+          startBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            runAnalysis();
+          });
+        }
+
+        if (viewListBtn) {
+          viewListBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            goToDashboard();
+          });
+        }
+      })();
+  </script>
+</body>
+
+</html>

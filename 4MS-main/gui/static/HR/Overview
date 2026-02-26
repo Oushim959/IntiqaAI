@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HR Dashboard — IntiqAI</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { primary: "#0ea5e9", navy: "#0f172a" },
+          fontFamily: { sans: ["Outfit", "system-ui", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+  <style>
+    .sidebar-enter {
+      animation: slideIn 0.2s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .stat-card {
+      transition: box-shadow .2s, transform .2s;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 10px 30px -10px rgba(15, 23, 42, .15);
+      transform: translateY(-1px);
+    }
+
+    .run-card {
+      transition: box-shadow .2s;
+    }
+
+    .run-card:hover {
+      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, .08);
+    }
+
+    .phase-details[aria-hidden="true"] {
+      display: none;
+    }
+
+    .phase-details[aria-hidden="false"] {
+      display: block;
+    }
+
+    .accordion-btn[aria-expanded="true"] .accordion-chevron {
+      transform: rotate(180deg);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-navy dark:text-slate-100 min-h-screen transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="/hr/overview" class="text-primary font-semibold text-lg">IntiqAI</a>
+        <span class="text-slate-300 dark:text-slate-600">|</span>
+        <span class="font-semibold text-slate-800 dark:text-slate-200">HR Dashboard</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button type="button" id="themeToggle"
+          class="p-2 rounded-lg text-slate-500 hover:text-navy dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+          title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg id="themeIconSun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="themeIconMoon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+        <a id="adminLink" href="/hr/admin"
+          class="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline hidden">Manage Users</a>
+        <a href="/hr/upload" class="text-sm font-medium text-primary hover:underline">Upload &amp; Run</a>
+        <span id="lastRefresh" class="text-xs text-slate-400 dark:text-slate-500">—</span>
+        <button type="button" id="refreshBtn"
+          class="text-sm text-slate-600 dark:text-slate-400 hover:text-navy dark:hover:text-slate-100">Refresh</button>
+        <button type="button" id="logout"
+          class="text-sm text-slate-600 dark:text-slate-400 hover:text-navy dark:hover:text-slate-100">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 py-8">
+    <div id="authFail" class="hidden text-center py-16">
+      <p class="text-red-600 dark:text-red-400 mb-4">Session expired or not authenticated.</p>
+      <a href="/hr/login" class="text-primary font-medium">Go to HR Login</a>
+    </div>
+
+    <div id="dashboard" class="hidden space-y-8">
+      <section class="grid grid-cols-2 lg:grid-cols-5 gap-4" id="statsRow"></section>
+      <section class="grid lg:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+          <h3 class="text-lg font-semibold text-navy dark:text-slate-100 mb-1">Pipeline stage</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Candidates by stage.</p>
+          <div class="h-52"><canvas id="chartPipeline"></canvas></div>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-2">Shortlisted = passed CV screening (fit ≥ 8); FKA
+            pass = 60+.</p>
+        </div>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+          <h3 class="text-lg font-semibold text-navy dark:text-slate-100 mb-1">CV fit score distribution</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Shortlisted candidates by fit score (1–10). Higher
+            = better match to job description.</p>
+          <div class="h-52"><canvas id="chartFit"></canvas></div>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-2">Score from CV screening; typically 7+ required to
+            be shortlisted.</p>
+        </div>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+          <h3 class="text-lg font-semibold text-navy dark:text-slate-100 mb-1">FKA score distribution (passed)</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Candidates who passed the knowledge assessment
+            (score ≥ 60), by score band.</p>
+          <div class="h-52"><canvas id="chartFka"></canvas></div>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-2">Only includes those who passed FKA.</p>
+        </div>
+      </section>
+      <section class="grid lg:grid-cols-1 gap-6">
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+          <h3 class="text-lg font-semibold text-navy dark:text-slate-100 mb-4">Status distribution</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">All candidates by status</p>
+          <div class="h-64"><canvas id="chartStatus"></canvas></div>
+        </div>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-navy dark:text-slate-100 mb-2">Pipeline runs</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Each card shows a run summary; expand to see phase
+          breakdown and candidate table. Click <strong>Details</strong> on a candidate for CV/FKA justifications and
+          interview report.</p>
+        <div id="runsContainer" class="space-y-6"></div>
+      </section>
+    </div>
+
+    <div id="content" class="space-y-8">
+      <p class="text-slate-500 dark:text-slate-400">Loading...</p>
+    </div>
+  </main>
+
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/30 z-50 hidden" aria-hidden="true"></div>
+  <aside id="sidebar"
+    class="fixed top-0 right-0 w-full max-w-lg h-full bg-white dark:bg-slate-800 shadow-2xl z-50 overflow-y-auto sidebar-enter hidden border-l border-slate-200 dark:border-slate-700">
+    <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-navy dark:text-slate-100">Candidate details</h3>
+      <button type="button" id="sidebarClose"
+        class="p-2 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-slate-100 rounded-lg">✕</button>
+    </div>
+    <div id="sidebarBody" class="p-6 space-y-6"></div>
+  </aside>
+
+  <script>
+    (function () {
+      (function themeInit() {
+        var stored = localStorage.getItem("theme");
+        var dark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) document.documentElement.classList.add("dark"); else document.documentElement.classList.remove("dark");
+        var btn = document.getElementById("themeToggle");
+        if (btn) btn.addEventListener("click", function () {
+          document.documentElement.classList.toggle("dark");
+          localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+        });
+      })();
+      var chartStatus = null, chartFka = null, chartPipeline = null, chartFit = null;
+
+      function escapeHtml(s) {
+        if (s == null) return "";
+        var d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+      function statusLabel(s) {
+        if (s === "qualified" || s === "shortlisted") return "Shortlisted";
+        if (s === "fka_done") return "FKA passed";
+        if (s === "fka_failed" || s === "disqualified") return "Disqualified";
+        if (s === "fka_started") return "FKA in progress";
+        if (s === "interview_started") return "Interview started";
+        if (s === "interview_done") return "Interview done";
+        return (s || "").replace(/_/g, " ");
+      }
+      var STATUS_COLORS = {
+        shortlisted: "#64748b",
+        qualified: "#64748b",
+        fka_started: "#eab308",
+        fka_done: "#0ea5e9",
+        fka_failed: "#ef4444",
+        disqualified: "#ef4444",
+        interview_started: "#a855f7",
+        interview_done: "#059669"
+      };
+
+      function runBriefStats(candidates) {
+        var counts = { shortlisted: 0, qualified: 0, fka_started: 0, fka_done: 0, fka_failed: 0, disqualified: 0, interview_started: 0, interview_done: 0 };
+        (candidates || []).forEach(function (c) {
+          var s = c.status || "shortlisted";
+          if (s === "shortlisted" || s === "qualified") counts.shortlisted++;
+          else if (s === "fka_started") counts.fka_started++;
+          else if (s === "fka_done" || s === "interview_started" || s === "interview_done") counts.fka_done++;
+          else if (s === "fka_failed") counts.fka_failed++;
+          else if (s === "disqualified") counts.disqualified++;
+          if (s === "interview_started") counts.interview_started++;
+          if (s === "interview_done") counts.interview_done++;
+        });
+        var disq = (counts.fka_failed || 0) + (counts.disqualified || 0);
+        var parts = [];
+        if (counts.shortlisted) parts.push(counts.shortlisted + " shortlisted");
+        if (counts.fka_done) parts.push(counts.fka_done + " passed FKA");
+        if (disq) parts.push(disq + " disqualified");
+        if (counts.interview_done) parts.push(counts.interview_done + " interview done");
+        return parts.length ? parts.join(" · ") : "—";
+      }
+
+      function openSidebar(candidateId) {
+        var overlay = document.getElementById("sidebarOverlay");
+        var sidebar = document.getElementById("sidebar");
+        var body = document.getElementById("sidebarBody");
+        body.innerHTML = "<p class='text-slate-500'>Loading...</p>";
+        overlay.classList.remove("hidden");
+        sidebar.classList.remove("hidden");
+        fetch("/api/hr/candidate/" + candidateId, { credentials: "include" })
+          .then(function (r) {
+            if (!r.ok) throw new Error("Not found");
+            return r.json();
+          })
+          .then(function (data) {
+            var c = data.candidate || {};
+            var run = data.run || {};
+            var cv = data.cv_stage || {};
+            var block = function (t) { return "<div class='text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 border border-slate-100 dark:border-slate-600 whitespace-pre-wrap'>" + escapeHtml(String(t || "").trim()) + "</div>"; };
+            var emptyBlock = "<div class='text-sm text-slate-400 dark:text-slate-500 italic rounded-lg p-4 border border-slate-100 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-700/30'>No additional details stored.</div>";
+            var html = "";
+
+            html += "<div class='rounded-xl bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 p-4'><h4 class='text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2'>Candidate</h4><p class='font-semibold text-navy dark:text-slate-100'>" + escapeHtml((c.first_name + " " + c.last_name).trim() || c.resume_link || "—") + "</p><p class='text-sm text-slate-600 dark:text-slate-400 mt-0.5'>" + escapeHtml(c.email || "—") + "</p></div>";
+            var status = c.status || "";
+            var statusPillClass = status === "interview_done" ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200" : status === "fka_done" ? "bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-200" : status === "interview_started" ? "bg-violet-100 dark:bg-violet-900/40 text-violet-800 dark:text-violet-200" : status === "fka_started" ? "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200" : (status === "fka_failed" || status === "disqualified") ? "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200" : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300";
+            html += "<div class='rounded-xl bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 p-4'><h4 class='text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2'>Status</h4><span class='inline-block px-2.5 py-1 rounded-lg text-sm font-medium " + statusPillClass + "'>" + escapeHtml(statusLabel(status)) + "</span></div>";
+            html += "<div class='rounded-xl bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 p-4'><h4 class='text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2'>Run</h4><p class='text-sm font-medium text-navy dark:text-slate-100'>" + escapeHtml(run.jd_title || "—") + "</p><p class='text-xs text-slate-500 dark:text-slate-400 mt-1'>" + (run.timestamp || "").slice(0, 16) + "</p></div>";
+
+            // CV screening: Fit + justification always shown (or placeholder) + dropdown for strengths/weaknesses
+            html += "<div class='rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4'><h4 class='text-sm font-semibold text-navy dark:text-slate-100 mb-3 flex items-center gap-2'><span class='w-6 h-6 rounded bg-primary/10 text-primary text-xs font-bold flex items-center justify-center'>1</span> CV screening</h4>";
+            var cvFit = c.overall_fit != null ? c.overall_fit : (cv.overall_fit != null ? cv.overall_fit : null);
+            html += "<p class='text-navy font-semibold mb-2'>" + (cvFit != null ? "Fit: " + escapeHtml(String(cvFit)) + " / 10" : "Fit: —") + "</p>";
+            html += "<p class='text-xs font-medium text-slate-500 mb-1'>Justification</p>";
+            html += (cv.justification && String(cv.justification).trim()) ? block(cv.justification) : "<div class='text-sm text-slate-400 dark:text-slate-500 italic rounded-lg p-4 border border-slate-100 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-700/30'>No justification stored for this candidate.</div>";
+            var cvDetailId = "cv-detail-" + (c.id || "x");
+            html += "<button type='button' class='accordion-btn mt-3 flex items-center gap-1.5 text-sm font-medium text-primary hover:underline' data-target='" + cvDetailId + "' aria-expanded='false'><span class='accordion-chevron inline-block transition-transform'>▼</span> Strengths &amp; weaknesses</button>";
+            html += "<div id='" + cvDetailId + "' class='phase-details mt-2 space-y-2' aria-hidden='true'>";
+            if (cv.strengths && String(cv.strengths).trim()) html += "<p class='text-xs text-slate-500'>Strengths</p>" + block(cv.strengths); else html += "<p class='text-xs text-slate-500'>Strengths</p>" + emptyBlock;
+            if (cv.weaknesses && String(cv.weaknesses).trim()) html += "<p class='text-xs text-slate-500 mt-2'>Weaknesses</p>" + block(cv.weaknesses); else html += "<p class='text-xs text-slate-500 mt-2'>Weaknesses</p>" + emptyBlock;
+            html += "</div></div>";
+
+            // FKA: Score + justification always shown (or placeholder) + dropdown for strengths/weaknesses
+            html += "<div class='rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4'><h4 class='text-sm font-semibold text-navy dark:text-slate-100 mb-3 flex items-center gap-2'><span class='w-6 h-6 rounded bg-primary/10 text-primary text-xs font-bold flex items-center justify-center'>2</span> FKA</h4>";
+            html += "<p class='text-navy font-semibold mb-2'>" + (c.fka_score != null ? "Score: " + c.fka_score + " / 100" + (c.status === "fka_done" || c.status === "interview_started" || c.status === "interview_done" ? " (Passed)" : " (Did not pass)") : "—") + "</p>";
+            html += "<p class='text-xs font-medium text-slate-500 mb-1'>Justification</p>";
+            html += (c.fka_justification && String(c.fka_justification).trim()) ? block(c.fka_justification) : "<div class='text-sm text-slate-400 dark:text-slate-500 italic rounded-lg p-4 border border-slate-100 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-700/30'>No justification stored for this candidate.</div>";
+            var fkaDetailId = "fka-detail-" + (c.id || "x");
+            html += "<button type='button' class='accordion-btn mt-3 flex items-center gap-1.5 text-sm font-medium text-primary hover:underline' data-target='" + fkaDetailId + "' aria-expanded='false'><span class='accordion-chevron inline-block transition-transform'>▼</span> Strengths &amp; weaknesses</button>";
+            html += "<div id='" + fkaDetailId + "' class='phase-details mt-2 space-y-2' aria-hidden='true'>";
+            if (c.fka_strengths && c.fka_strengths.length) html += "<p class='text-xs text-slate-500'>Strengths</p>" + block((Array.isArray(c.fka_strengths) ? c.fka_strengths : [c.fka_strengths]).join("\n")); else html += "<p class='text-xs text-slate-500'>Strengths</p>" + emptyBlock;
+            if (c.fka_weaknesses && c.fka_weaknesses.length) html += "<p class='text-xs text-slate-500 mt-2'>Weaknesses</p>" + block((Array.isArray(c.fka_weaknesses) ? c.fka_weaknesses : [c.fka_weaknesses]).join("\n")); else html += "<p class='text-xs text-slate-500 mt-2'>Weaknesses</p>" + emptyBlock;
+            html += "</div></div>";
+
+            // Interview: brief + dropdown for evaluation/report (always present)
+            html += "<div class='rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4'><h4 class='text-sm font-semibold text-navy dark:text-slate-100 mb-3 flex items-center gap-2'><span class='w-6 h-6 rounded bg-primary/10 text-primary text-xs font-bold flex items-center justify-center'>3</span> Interview</h4>";
+            html += "<p class='text-navy font-semibold mb-2'>" + (c.status === "interview_done" ? "Completed" : "Not yet completed") + "</p>";
+            var intDetailId = "int-detail-" + (c.id || "x");
+            html += "<button type='button' class='accordion-btn flex items-center gap-1.5 text-sm font-medium text-primary hover:underline' data-target='" + intDetailId + "' aria-expanded='false'><span class='accordion-chevron inline-block transition-transform'>▼</span> Evaluation &amp; HR report</button>";
+            html += "<div id='" + intDetailId + "' class='phase-details mt-2 space-y-2' aria-hidden='true'>";
+            if (c.interview_evaluation_result && String(c.interview_evaluation_result).trim()) html += "<p class='text-xs text-slate-500'>Evaluation</p>" + block(c.interview_evaluation_result); else html += "<p class='text-xs text-slate-500'>Evaluation</p>" + emptyBlock;
+            if (c.interview_report && String(c.interview_report).trim()) html += "<p class='text-xs text-slate-500 mt-2'>HR report</p>" + block(c.interview_report); else html += "<p class='text-xs text-slate-500 mt-2'>HR report</p>" + emptyBlock;
+            html += "</div></div>";
+
+            body.innerHTML = html || "<p class='text-slate-500'>No extra details.</p>";
+
+            body.querySelectorAll(".accordion-btn").forEach(function (btn) {
+              btn.addEventListener("click", function () {
+                var targetId = btn.getAttribute("data-target");
+                var el = document.getElementById(targetId);
+                var expanded = btn.getAttribute("aria-expanded") === "true";
+                btn.setAttribute("aria-expanded", !expanded);
+                if (el) el.setAttribute("aria-hidden", expanded);
+              });
+            });
+          })
+          .catch(function () {
+            body.innerHTML = "<p class='text-red-600'>Could not load details.</p>";
+          });
+      }
+
+      function closeSidebar() {
+        document.getElementById("sidebarOverlay").classList.add("hidden");
+        document.getElementById("sidebar").classList.add("hidden");
+      }
+
+      document.getElementById("sidebarClose").addEventListener("click", closeSidebar);
+      document.getElementById("sidebarOverlay").addEventListener("click", closeSidebar);
+
+      function load() {
+        fetch("/api/hr/overview", { credentials: "include" })
+          .then(function (r) {
+            if (r.status === 401) {
+              document.getElementById("dashboard").classList.add("hidden");
+              document.getElementById("content").classList.add("hidden");
+              document.getElementById("authFail").classList.remove("hidden");
+              return null;
+            }
+            return r.json();
+          })
+          .then(function (data) {
+            var authEl = document.getElementById("authFail");
+            var contentEl = document.getElementById("content");
+            var dashEl = document.getElementById("dashboard");
+            if (authEl) authEl.classList.add("hidden");
+            if (contentEl) contentEl.classList.add("hidden");
+            if (dashEl) dashEl.classList.remove("hidden");
+            if (data.role === "admin") {
+              const node = document.getElementById("adminLink");
+              if (node) node.classList.remove("hidden");
+            }
+            if (!data) return;
+            try {
+              document.getElementById("lastRefresh").textContent = "Just now";
+              var runs = (data.runs || []).filter(function (r) { return (r.candidates || []).length > 0; });
+              var allCandidates = [];
+              runs.forEach(function (r) { (r.candidates || []).forEach(function (c) { allCandidates.push(c); }); });
+
+              var statusCounts = {};
+              var fkaScores = [];
+              allCandidates.forEach(function (c) {
+                var s = c.status || "shortlisted";
+                statusCounts[s] = (statusCounts[s] || 0) + 1;
+                if (c.fka_score != null && (c.status === "fka_done" || c.status === "interview_started" || c.status === "interview_done")) fkaScores.push(c.fka_score);
+              });
+
+              var totalCandidates = allCandidates.length;
+              var passedFka = (statusCounts.fka_done || 0) + (statusCounts.interview_started || 0) + (statusCounts.interview_done || 0);
+              var completed = statusCounts.interview_done || 0;
+              var totalFilteredCv = runs.reduce(function (acc, r) {
+                var total = r.total_resumes || 0;
+                var inRun = (r.candidates || []).length;
+                return acc + Math.max(0, total - inRun);
+              }, 0);
+
+              var statsHtml = "";
+              statsHtml += "<div class='stat-card bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5'><p class='text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide'>Runs</p><p class='text-2xl font-bold text-navy dark:text-slate-100 mt-1'>" + runs.length + "</p></div>";
+              statsHtml += "<div class='stat-card bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5'><p class='text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide'>Shortlisted</p><p class='text-2xl font-bold text-navy dark:text-slate-100 mt-1'>" + totalCandidates + "</p></div>";
+              statsHtml += "<div class='stat-card bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5'><p class='text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide'>Filtered (CV)</p><p class='text-2xl font-bold text-slate-500 dark:text-slate-400 mt-1'>" + totalFilteredCv + "</p></div>";
+              statsHtml += "<div class='stat-card bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5'><p class='text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide'>Passed FKA</p><p class='text-2xl font-bold text-primary mt-1'>" + passedFka + "</p></div>";
+              statsHtml += "<div class='stat-card bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5'><p class='text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide'>Interview done</p><p class='text-2xl font-bold text-emerald-600 mt-1'>" + completed + "</p></div>";
+              document.getElementById("statsRow").innerHTML = statsHtml;
+
+              var statusLabels = ["Shortlisted", "FKA in progress", "FKA passed", "Disqualified", "Interview started", "Interview done"];
+              var statusData = [
+                (statusCounts.shortlisted || 0) + (statusCounts.qualified || 0),
+                statusCounts.fka_started || 0,
+                statusCounts.fka_done || 0,
+                (statusCounts.fka_failed || 0) + (statusCounts.disqualified || 0),
+                statusCounts.interview_started || 0,
+                statusCounts.interview_done || 0
+              ];
+              var statusChartColors = ["#64748b", "#eab308", "#0ea5e9", "#ef4444", "#a855f7", "#059669"];
+              if (chartStatus) chartStatus.destroy();
+              chartStatus = new Chart(document.getElementById("chartStatus"), {
+                type: "doughnut",
+                data: {
+                  labels: statusLabels,
+                  datasets: [{ data: statusData, backgroundColor: statusChartColors, borderWidth: 0 }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: "bottom" },
+                    tooltip: {
+                      callbacks: {
+                        afterLabel: function (ctx) {
+                          var total = statusData.reduce(function (a, b) { return a + b; }, 0);
+                          var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                          return (ctx.raw || 0) + " candidate(s) (" + pct + "%)";
+                        }
+                      }
+                    }
+                  }
+                }
+              });
+
+              var disqualifiedTotal = (statusCounts.fka_failed || 0) + (statusCounts.disqualified || 0);
+              var pipelineLabels = ["Filtered (CV)", "Shortlisted", "FKA passed", "Disqualified", "Interview done"];
+              var pipelineData = [totalFilteredCv, totalCandidates, passedFka, disqualifiedTotal, completed];
+              var pipelineColors = ["#94a3b8", "#64748b", "#0ea5e9", "#ef4444", "#10b981"];
+              if (chartPipeline) chartPipeline.destroy();
+              chartPipeline = new Chart(document.getElementById("chartPipeline"), {
+                type: "bar",
+                data: {
+                  labels: pipelineLabels,
+                  datasets: [{ label: "Candidates", data: pipelineData, backgroundColor: pipelineColors, borderRadius: 6 }]
+                },
+                options: {
+                  indexAxis: "y",
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    x: {
+                      beginAtZero: true,
+                      ticks: { stepSize: 1 },
+                      title: { display: true, text: "Number of candidates" }
+                    },
+                    y: { title: { display: true, text: "Stage" } }
+                  },
+                  plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                      callbacks: {
+                        afterLabel: function (ctx) {
+                          var i = ctx.dataIndex;
+                          var stages = ["Below CV threshold", "In run (passed CV screening)", "Passed FKA (score ≥ 60)", "Disqualified", "Completed voice interview"];
+                          return stages[i] || "";
+                        }
+                      }
+                    }
+                  }
+                }
+              });
+
+              var fitBins = [0, 0, 0];
+              allCandidates.forEach(function (c) {
+                var v = c.overall_fit != null ? Number(c.overall_fit) : NaN;
+                if (!isNaN(v)) {
+                  if (v >= 7) fitBins[2]++;
+                  else if (v >= 4) fitBins[1]++;
+                  else fitBins[0]++;
+                }
+              });
+              if (chartFit) chartFit.destroy();
+              chartFit = new Chart(document.getElementById("chartFit"), {
+                type: "bar",
+                data: {
+                  labels: ["1–3 (low)", "4–6 (medium)", "7–10 (high)"],
+                  datasets: [{ label: "Candidates", data: fitBins, backgroundColor: ["#64748b", "#0ea5e9", "#10b981"], borderRadius: 6 }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    x: { title: { display: true, text: "Fit score range" } },
+                    y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: "Number of candidates" } }
+                  },
+                  plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                      callbacks: {
+                        afterLabel: function (ctx) {
+                          var i = ctx.dataIndex;
+                          var desc = ["Low match to JD", "Medium match", "High match (typical shortlist)"];
+                          return desc[i] || "";
+                        }
+                      }
+                    }
+                  }
+                }
+              });
+
+              if (fkaScores.length) {
+                var bins = [0, 0, 0, 0];
+                fkaScores.forEach(function (sc) {
+                  if (sc >= 90) bins[3]++;
+                  else if (sc >= 80) bins[2]++;
+                  else if (sc >= 70) bins[1]++;
+                  else if (sc >= 60) bins[0]++;
+                });
+                if (chartFka) chartFka.destroy();
+                chartFka = new Chart(document.getElementById("chartFka"), {
+                  type: "bar",
+                  data: {
+                    labels: ["60–69", "70–79", "80–89", "90–100"],
+                    datasets: [{ label: "Candidates", data: bins, backgroundColor: ["#0ea5e9", "#0ea5e9", "#0ea5e9", "#10b981"], borderRadius: 6 }]
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      x: { title: { display: true, text: "FKA score band" } },
+                      y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: "Number of candidates" } }
+                    },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: function () { return "Pass threshold = 60"; } } } }
+                  }
+                });
+              } else {
+                if (chartFka) chartFka.destroy();
+                chartFka = new Chart(document.getElementById("chartFka"), {
+                  type: "bar",
+                  data: { labels: ["60–69", "70–79", "80–89", "90–100"], datasets: [{ label: "Candidates", data: [0, 0, 0, 0], backgroundColor: "#e2e8f0", borderRadius: 6 }] },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      x: { title: { display: true, text: "FKA score band" } },
+                      y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: "Number of candidates" } }
+                    },
+                    plugins: { legend: { display: false } }
+                  }
+                });
+              }
+
+              var runsHtml = "";
+              if (runs.length === 0) {
+                runsHtml = "<div class='bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-10 text-center'><p class='text-slate-500 dark:text-slate-400'>No runs yet.</p><a href='/hr/upload' class='inline-block mt-4 text-primary font-semibold'>Upload JD &amp; CVs to start</a></div>";
+              } else {
+                runs.forEach(function (run) {
+                  var cands = run.candidates || [];
+                  var runId = "run-" + (run.run_id || "");
+                  var statusCountsRun = {};
+                  cands.forEach(function (c) {
+                    var s = c.status || "shortlisted";
+                    statusCountsRun[s] = (statusCountsRun[s] || 0) + 1;
+                  });
+                  var shortlisted = (statusCountsRun.shortlisted || 0) + (statusCountsRun.qualified || 0);
+                  var fkaPassed = (statusCountsRun.fka_done || 0) + (statusCountsRun.interview_started || 0) + (statusCountsRun.interview_done || 0);
+                  var disqualifiedRun = (statusCountsRun.fka_failed || 0) + (statusCountsRun.disqualified || 0);
+                  var interviewDone = statusCountsRun.interview_done || 0;
+
+                  var runDateFmt = (run.timestamp || "").slice(0, 19).replace("T", " ") || "—";
+                  runsHtml += "<div class='run-card bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden'>";
+                  runsHtml += "<div class='px-6 py-5'>";
+                  runsHtml += "<div class='flex flex-wrap items-start justify-between gap-4'>";
+                  runsHtml += "<div class='min-w-0'>";
+                  runsHtml += "<h3 class='text-lg font-semibold text-navy dark:text-slate-100'>" + escapeHtml(run.jd_title || "Run") + "</h3>";
+                  runsHtml += "<p class='text-sm text-slate-500 dark:text-slate-400 mt-1'>" + runDateFmt + " · " + (run.total_resumes || 0) + " resume(s) screened · " + cands.length + " shortlisted</p>";
+                  runsHtml += "<div class='flex flex-wrap gap-2 mt-3'>";
+                  runsHtml += "<span class='inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-700 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:text-slate-300'>" + shortlisted + " shortlisted</span>";
+                  runsHtml += "<span class='inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary'>" + fkaPassed + " FKA passed</span>";
+                  runsHtml += "<span class='inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-200'>" + disqualifiedRun + " Disqualified</span>";
+                  runsHtml += "<span class='inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-200'>" + interviewDone + " interview done</span>";
+                  runsHtml += "</div>";
+                  runsHtml += "</div>";
+                  runsHtml += "<div class='flex shrink-0 flex-col gap-2 sm:flex-row'>";
+
+                  runsHtml += "<button type='button' class='detail-toggle inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90' id='" + runId + "-btn' aria-expanded='false' aria-controls='" + runId + "'>View details</button>";
+
+                  // Add Review Questions button for pending_review status
+                  if (run.status === "pending_review") {
+                    runsHtml += "<button type='button' class='review-questions-btn inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500' data-run-id='" + (run.run_id || "") + "'>Review Questions</button>";
+                  }
+
+                  runsHtml += "<button type='button' class='delete-run inline-flex items-center justify-center rounded-lg border border-red-200 dark:border-red-800 bg-white dark:bg-slate-700 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30' data-run-id='" + (run.run_id || "") + "'>Delete run</button>";
+                  runsHtml += "</div>";
+                  runsHtml += "</div>";
+                  runsHtml += "</div>";
+                  runsHtml += "<div id='" + runId + "' class='run-detail-content border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50' style='display:none'>";
+                  runsHtml += "<div class='px-6 py-4'>";
+                  runsHtml += "<div class='grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6'>";
+                  runsHtml += "<div class='bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3'><p class='text-xs text-slate-500 dark:text-slate-400'>Shortlisted</p><p class='text-lg font-semibold text-navy dark:text-slate-100'>" + shortlisted + "</p></div>";
+                  runsHtml += "<div class='bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3'><p class='text-xs text-slate-500 dark:text-slate-400'>FKA passed</p><p class='text-lg font-semibold text-primary'>" + fkaPassed + "</p></div>";
+                  runsHtml += "<div class='bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3'><p class='text-xs text-slate-500 dark:text-slate-400'>Disqualified</p><p class='text-lg font-semibold text-red-600'>" + disqualifiedRun + "</p></div>";
+                  runsHtml += "<div class='bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3'><p class='text-xs text-slate-500 dark:text-slate-400'>Interview done</p><p class='text-lg font-semibold text-emerald-600'>" + interviewDone + "</p></div>";
+                  runsHtml += "</div>";
+                  runsHtml += "<h4 class='text-sm font-semibold text-navy dark:text-slate-100 mb-3'>Candidates</h4>";
+                  runsHtml += "<div class='overflow-x-auto'><table class='w-full text-sm'><thead><tr class='border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50'><th class='text-left py-3 px-4 text-slate-700 dark:text-slate-300'>Candidate</th><th class='text-left py-3 px-4 text-slate-700 dark:text-slate-300'>Email</th><th class='text-left py-3 px-4 text-slate-700 dark:text-slate-300'>Status</th><th class='text-left py-3 px-4 text-slate-700 dark:text-slate-300'>Fit</th><th class='text-left py-3 px-4 text-slate-700 dark:text-slate-300'>FKA</th><th class='text-left py-3 px-4 text-slate-700 dark:text-slate-300'>Interview</th><th class='text-left py-3 px-4 text-slate-700 dark:text-slate-300'>Actions</th></tr></thead><tbody>";
+                  cands.forEach(function (c) {
+                    var name = (c.first_name + " " + c.last_name).trim() || c.resume_link || "—";
+                    var status = c.status || "shortlisted";
+                    var statusDisplay = statusLabel(status);
+                    var cid = c.id || "";
+                    var statusClass = status === "interview_done" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200" : status === "fka_done" ? "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200" : status === "interview_started" ? "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200" : status === "fka_started" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200" : (status === "fka_failed" || status === "disqualified") ? "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200" : "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
+                    var intBrief = status === "interview_done" ? "Done" : "—";
+                    runsHtml += "<tr class='border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/50'>";
+                    runsHtml += "<td class='py-3 px-4 font-medium text-navy dark:text-slate-100'>" + escapeHtml(name) + "</td>";
+                    runsHtml += "<td class='py-3 px-4 text-slate-600 dark:text-slate-400'>" + escapeHtml(c.email || "—") + "</td>";
+                    runsHtml += "<td class='py-3 px-4'><span class='px-2 py-1 rounded-lg text-xs " + statusClass + "'>" + statusDisplay + "</span></td>";
+                    runsHtml += "<td class='py-3 px-4'>" + (c.overall_fit != null ? escapeHtml(String(c.overall_fit)) : "—") + "</td>";
+                    runsHtml += "<td class='py-3 px-4'>" + (c.fka_score != null ? c.fka_score + "/100" : "—") + "</td>";
+                    runsHtml += "<td class='py-3 px-4'>" + escapeHtml(intBrief) + "</td>";
+                    runsHtml += "<td class='py-3 px-4'><button type='button' class='view-detail text-primary font-medium hover:underline' data-candidate-id='" + cid + "'>Details</button> <button type='button' class='delete-candidate text-red-600 hover:text-red-800 text-xs font-medium' data-candidate-id='" + cid + "'>Delete</button></td>";
+                    runsHtml += "</tr>";
+                  });
+                  runsHtml += "</tbody></table></div>";
+                  runsHtml += "</div></div>";
+                  runsHtml += "</div>";
+                });
+              }
+              document.getElementById("runsContainer").innerHTML = runsHtml;
+
+              document.querySelectorAll(".detail-toggle").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                  var expanded = btn.getAttribute("aria-expanded") === "true";
+                  btn.setAttribute("aria-expanded", !expanded);
+                  btn.textContent = expanded ? "View details" : "Hide details";
+                  var id = btn.getAttribute("aria-controls");
+                  if (id) {
+                    var panel = document.getElementById(id);
+                    if (panel) panel.style.display = expanded ? "none" : "block";
+                  }
+                });
+              });
+            } catch (err) {
+              var errMsg = (err && err.message) ? err.message : "Error loading dashboard.";
+              var row = document.getElementById("statsRow");
+              if (row) row.innerHTML = "<div class='col-span-full p-4 rounded-xl border border-red-200 bg-red-50 text-red-700'>" + escapeHtml(errMsg) + "</div>";
+              var runC = document.getElementById("runsContainer");
+              if (runC) runC.innerHTML = "<p class='text-slate-600'>Data could not be rendered. See error above.</p>";
+            }
+          })
+          .catch(function () {
+            document.getElementById("content").innerHTML = "<p class='text-red-600'>Failed to load.</p>";
+            document.getElementById("content").classList.remove("hidden");
+          });
+      }
+
+      document.getElementById("refreshBtn").addEventListener("click", function () { load(); });
+      document.getElementById("logout").addEventListener("click", function () {
+        fetch("/api/auth/hr_logout", { method: "POST", credentials: "include" }).then(function () { window.location.href = "/hr/login"; });
+      });
+      document.getElementById("runsContainer").addEventListener("click", function (e) {
+        var btn = e.target.closest(".view-detail");
+        if (btn) { var cid = btn.getAttribute("data-candidate-id"); if (cid) openSidebar(cid); return; }
+        btn = e.target.closest(".delete-run");
+        if (btn) {
+          var rid = (btn.getAttribute("data-run-id") || "").trim();
+          if (!rid) { alert("Run ID missing. Refresh and try again."); return; }
+          if (!confirm("Delete this entire run? All candidates in it will be removed and will no longer be able to log in. This cannot be undone.")) return;
+          btn.disabled = true;
+          var body = JSON.stringify({ run_id: rid, action: "delete_run" });
+          var opts = { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: body };
+          fetch("/api/hr/credentials/auto-create", opts)
+            .then(function (r) {
+              if (r.ok) { load(); return; }
+              return r.json().then(function (d) { alert(d.detail || "Failed to delete run."); }).catch(function () { alert("Failed to delete run."); });
+            })
+            .catch(function () { alert("Could not reach server. Try again."); })
+            .then(function () { btn.disabled = false; });
+          return;
+        }
+        btn = e.target.closest(".delete-candidate");
+        if (btn) {
+          var cid = btn.getAttribute("data-candidate-id");
+          if (!cid) return;
+          if (!confirm("Remove this candidate? They will no longer appear and cannot log in.")) return;
+          btn.disabled = true;
+          fetch("/api/hr/candidates/delete", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ candidate_id: cid })
+          }).then(function (r) {
+            if (r.ok) load();
+            else { btn.disabled = false; r.json().then(function (d) { alert(d.detail || "Failed."); }).catch(function () { alert("Failed."); }); }
+          }).catch(function () { btn.disabled = false; alert("Failed."); });
+        }
+      });
+      load();
+      // Auto-refresh every 60s, but ONLY if the user is not interacting (sidebar closed, no details expanded)
+      setInterval(function () {
+        var sidebar = document.getElementById("sidebar");
+        if (sidebar && !sidebar.classList.contains("hidden")) return;
+
+        // If any accordion is expanded, don't refresh (would collapse it)
+        var expanded = document.querySelector(".detail-toggle[aria-expanded='true']");
+        if (expanded) return;
+
+        load();
+      }, 60000);
+    })();
+  </script>
+</body>
+
+</html>

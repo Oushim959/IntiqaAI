@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload & Run — IntiqAI</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { primary: "#0ea5e9", navy: "#0f172a" },
+          fontFamily: { sans: ["Outfit", "system-ui", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-navy dark:text-slate-100 min-h-screen transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 lg:px-8 py-4">
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="/hr/overview" class="text-primary font-semibold text-lg">IntiqAI</a>
+        <span class="text-slate-300 dark:text-slate-600">|</span>
+        <span class="font-semibold text-slate-800 dark:text-slate-200">Upload &amp; Run</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button type="button" id="themeToggle"
+          class="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-slate-100 transition-colors"
+          title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg id="themeIconSun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="themeIconMoon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 lg:px-8 py-8">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 mb-8">
+      <h2 class="text-lg font-semibold text-navy dark:text-slate-100 mb-4">1. Upload and run CV filtering</h2>
+      <form id="uploadForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Job Description
+            (PDF/DOCX)</label>
+          <input type="file" id="jdFile" accept=".pdf,.docx" required
+            class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-primary/10 file:text-primary" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CVs (PDF, multiple)</label>
+          <input type="file" id="cvFiles" accept=".pdf" multiple required
+            class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-primary/10 file:text-primary" />
+        </div>
+        <p id="uploadError" class="text-sm text-red-600 dark:text-red-400 hidden"></p>
+        <button type="submit" id="runBtn"
+          class="px-6 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-colors">Run
+          filtering</button>
+      </form>
+    </div>
+
+    <div id="resultsSection"
+      class="hidden bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-emerald-50 dark:bg-emerald-900/30">
+        <p class="font-semibold text-emerald-800 dark:text-emerald-200">Run completed.</p>
+      </div>
+      <div class="p-6">
+        <input type="hidden" id="runId" name="run_id" />
+        <p id="emailSentMessage" class="text-sm text-slate-700 dark:text-slate-300">Emails have been sent to qualifying
+          candidates with their login credentials for the FKA phase.</p>
+        <p id="emailSentDetail" class="mt-2 text-sm text-slate-500 dark:text-slate-400 hidden"></p>
+        
+        <!-- Download Buttons -->
+        <div class="mt-6 flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+          <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Download Results:</span>
+          <div class="flex items-center gap-3">
+            <a href="/api/cv_filter/download/High_Scoring_Candidates.xlsx" target="_blank" class="px-4 py-2 bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-600/30 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg font-medium text-xs flex items-center gap-2 transition-colors shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              High Scores.xlsx
+            </a>
+            <a href="/api/cv_filter/download/Resume_Screening_Results.xlsx" target="_blank" class="px-4 py-2 bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-600/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg font-medium text-xs flex items-center gap-2 transition-colors shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              All Results.xlsx
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question Review Modal -->
+    <div id="questionModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="fixed inset-0 bg-black/50 transition-opacity" id="modalOverlay"></div>
+        <div
+          class="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+
+          <!-- Modal Header -->
+          <div
+            class="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 z-10">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-navy dark:text-slate-100">Review Generated Questions</h2>
+              <button type="button" id="closeModal"
+                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Review and edit questions before sending
+              credentials to candidates</p>
+          </div>
+
+          <!-- Tabs -->
+          <div class="border-b border-slate-200 dark:border-slate-700 px-6">
+            <nav class="flex space-x-8" aria-label="Tabs">
+              <button type="button" class="tab-btn border-b-2 border-primary text-primary py-3 px-1 text-sm font-medium"
+                data-tab="fka">
+                FKA Questions
+              </button>
+              <button type="button"
+                class="tab-btn border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 py-3 px-1 text-sm font-medium"
+                data-tab="interview">
+                Interview Questions
+              </button>
+            </nav>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="overflow-y-auto p-6 space-y-6" style="max-height: calc(90vh - 200px);">
+            <!-- FKA Tab Content -->
+            <div id="tab-fka" class="tab-content">
+              <div id="fka-categories" class="space-y-6"></div>
+            </div>
+
+            <!-- Interview Tab Content -->
+            <div id="tab-interview" class="tab-content hidden">
+              <div id="interview-categories" class="space-y-6"></div>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div
+            class="sticky bottom-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-6 py-4">
+            <div class="flex justify-end gap-3">
+              <button type="button" id="cancelReview"
+                class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
+                Cancel
+              </button>
+              <button type="button" id="confirmAndSend"
+                class="px-6 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-500 transition-colors">
+                Confirm & Send Credentials
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    (function () {
+      (function themeInit() {
+        var stored = localStorage.getItem("theme");
+        var dark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) document.documentElement.classList.add("dark"); else document.documentElement.classList.remove("dark");
+        var btn = document.getElementById("themeToggle");
+        if (btn) btn.addEventListener("click", function () {
+          document.documentElement.classList.toggle("dark");
+          localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+        });
+      })();
+      var uploadForm = document.getElementById("uploadForm");
+      var jdFile = document.getElementById("jdFile");
+      var cvFiles = document.getElementById("cvFiles");
+      var runBtn = document.getElementById("runBtn");
+      var uploadError = document.getElementById("uploadError");
+      var resultsSection = document.getElementById("resultsSection");
+      var runIdInput = document.getElementById("runId");
+      var emailSentMessage = document.getElementById("emailSentMessage");
+      var emailSentDetail = document.getElementById("emailSentDetail");
+
+      function showResultsWithEmailSent(rid, created, skipped, errors) {
+        runIdInput.value = rid;
+        resultsSection.classList.remove("hidden");
+        if (emailSentMessage) emailSentMessage.textContent = "Emails have been sent to qualifying candidates with their login credentials for the FKA phase.";
+        if (emailSentDetail) {
+          emailSentDetail.classList.remove("hidden");
+          var parts = [];
+          if (created != null && created > 0) parts.push(created + " candidate(s) notified.");
+          if (skipped != null && skipped > 0) parts.push(skipped + " skipped (no email found).");
+          if (errors && errors.length) parts.push("Some send issues: " + errors.slice(0, 2).join("; "));
+          emailSentDetail.textContent = parts.length ? parts.join(" ") : "";
+        }
+      }
+
+      function showResultsOnly(rid) {
+        runIdInput.value = rid;
+        resultsSection.classList.remove("hidden");
+        if (emailSentMessage) emailSentMessage.textContent = "Emails have been sent to qualifying candidates with their login credentials for the FKA phase.";
+        if (emailSentDetail) { emailSentDetail.classList.add("hidden"); emailSentDetail.textContent = ""; }
+      }
+
+      function autoSendCredentials(runId) {
+        return fetch("/api/hr/credentials/auto-create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ run_id: runId }),
+          credentials: "include"
+        })
+          .then(function (r) {
+            var ct = (r.headers.get("Content-Type") || "").toLowerCase();
+            if (ct.indexOf("application/json") !== -1) return r.json().then(function (d) { return { ok: r.ok, data: d }; });
+            return r.text().then(function (t) { return { ok: false, data: { detail: t || "Server error", created: 0, skipped_no_email: 0, errors: [t || "Server error"] } }; });
+          });
+      }
+
+      uploadForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        uploadError.classList.add("hidden");
+        var jd = jdFile.files[0];
+        var cvs = Array.from(cvFiles.files || []).filter(function (f) { return f.name.toLowerCase().endsWith(".pdf"); });
+        if (!jd) { uploadError.textContent = "Select a JD file."; uploadError.classList.remove("hidden"); return; }
+        if (!cvs.length) { uploadError.textContent = "Select at least one CV PDF."; uploadError.classList.remove("hidden"); return; }
+        runBtn.disabled = true;
+        runBtn.textContent = "Processing...";
+        var fd = new FormData();
+        fd.append("jd", jd);
+        cvs.forEach(function (f) { fd.append("cvs", f); });
+        fetch("/api/cv_filter/upload-run", { method: "POST", body: fd, credentials: "include" })
+          .then(function (r) {
+            if (!r.ok) return r.json().then(function (d) { throw new Error(d.detail || "Upload failed"); });
+            return r.json();
+          })
+          .then(function (data) {
+            var rid = data.run_id;
+            if (!rid) {
+              runBtn.disabled = false;
+              runBtn.textContent = "Run filtering";
+              uploadError.textContent = "Run completed but no run_id. Check Overview.";
+              uploadError.classList.remove("hidden");
+              return;
+            }
+            runBtn.disabled = false;
+            runBtn.textContent = "Run filtering";
+
+            // Fetch questions and show review modal
+            currentRunId = rid;
+            loadQuestionsAndShowModal(rid);
+          })
+          .catch(function (err) {
+            runBtn.disabled = false;
+            runBtn.textContent = "Run filtering";
+            uploadError.textContent = err.message || "Request failed.";
+            uploadError.classList.remove("hidden");
+          });
+      });
+
+      // If URL has run_id, show results section (no re-send to avoid duplicate emails)
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var qRunId = params.get("run_id");
+        if (!qRunId) return;
+        fetch("/api/hr/overview", { credentials: "include" })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var run = (data.runs || []).find(function (r) { return r.run_id === qRunId; });
+            if (!run) return;
+            showResultsOnly(run.run_id);
+          });
+      })();
+
+      // Modal state and functions
+      var currentRunId = null;
+      var fkaPool = {};
+      var interviewPool = {};
+
+      function loadQuestionsAndShowModal(runId) {
+        fetch("/api/hr/run/" + runId + "/questions", { credentials: "include" })
+          .then(function (r) {
+            if (!r.ok) throw new Error("Failed to fetch questions");
+            return r.json();
+          })
+          .then(function (data) {
+            fkaPool = data.fka_pool || {};
+            interviewPool = data.interview_pool || {};
+            renderQuestions();
+            document.getElementById("questionModal").classList.remove("hidden");
+          })
+          .catch(function (err) {
+            alert("Error loading questions: " + err.message);
+          });
+      }
+
+      function renderQuestions() {
+        // Dynamically render categories from pool keys
+        renderPoolCategories("fka", fkaPool, document.getElementById("fka-categories"));
+        renderPoolCategories("interview", interviewPool, document.getElementById("interview-categories"));
+      }
+
+      function renderPoolCategories(type, pool, container) {
+        if (!container) return;
+        container.innerHTML = "";
+        var categories = Object.keys(pool);
+        if (categories.length === 0) {
+          container.innerHTML = "<p class='text-sm text-slate-500 dark:text-slate-400 italic'>No questions generated</p>";
+          return;
+        }
+        categories.forEach(function (category) {
+          var div = document.createElement("div");
+          div.id = type + "-cat-" + category;
+          container.appendChild(div);
+          renderCategoryQuestions(type, category, pool[category] || [], div);
+        });
+      }
+
+      function renderCategoryQuestions(type, category, questions, container) {
+        if (!container) return;
+
+        var html = "<div class='bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700'>";
+        html += "<h3 class='text-sm font-semibold text-navy dark:text-slate-100 mb-3'>" + category + " Questions</h3>";
+
+        if (!questions || questions.length === 0) {
+          html += "<p class='text-sm text-slate-500 dark:text-slate-400 italic'>No questions generated</p>";
+        } else {
+          html += "<div class='space-y-3'>";
+          questions.forEach(function (q, idx) {
+            var qId = q.id || ("q-" + idx);
+            html += "<div class='bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700'>";
+            html += "<div class='flex items-start gap-3'>";
+            html += "<div class='flex-1'>";
+            html += "<textarea class='question-text w-full text-sm text-slate-700 dark:text-slate-300 bg-transparent border-0 focus:ring-0 resize-none' ";
+            html += "data-type='" + type + "' data-category='" + category + "' data-id='" + qId + "' rows='2'>" + (q.text || "") + "</textarea>";
+            html += "</div>";
+            html += "<div class='flex flex-col gap-2'>";
+            html += "<label class='flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400'>";
+            html += "<input type='checkbox' class='rounded text-primary must-ask-toggle' data-type='" + type + "' data-category='" + category + "' data-id='" + qId + "' " + (q.must_ask ? "checked" : "") + ">";
+            html += "Must Ask</label>";
+            html += "<button type='button' class='delete-question text-xs text-red-600 hover:text-red-700' data-type='" + type + "' data-category='" + category + "' data-id='" + qId + "'>Delete</button>";
+            html += "</div></div></div>";
+          });
+          html += "</div>";
+        }
+
+        html += "<button type='button' class='add-question mt-3 text-xs font-medium text-primary hover:underline' data-type='" + type + "' data-category='" + category + "'>+ Add Question</button>";
+        html += "</div>";
+        container.innerHTML = html;
+      }
+
+      // Tab switching
+      document.addEventListener("click", function (e) {
+        var tabBtn = e.target.closest(".tab-btn");
+        if (tabBtn) {
+          var tab = tabBtn.getAttribute("data-tab");
+          document.querySelectorAll(".tab-btn").forEach(function (btn) {
+            btn.classList.remove("border-primary", "text-primary");
+            btn.classList.add("border-transparent", "text-slate-500");
+          });
+          tabBtn.classList.add("border-primary", "text-primary");
+          tabBtn.classList.remove("border-transparent", "text-slate-500");
+
+          document.querySelectorAll(".tab-content").forEach(function (content) {
+            content.classList.add("hidden");
+          });
+          document.getElementById("tab-" + tab).classList.remove("hidden");
+        }
+
+        // Delete question
+        var deleteBtn = e.target.closest(".delete-question");
+        if (deleteBtn) {
+          var type = deleteBtn.getAttribute("data-type");
+          var category = deleteBtn.getAttribute("data-category");
+          var id = deleteBtn.getAttribute("data-id");
+          var pool = type === "fka" ? fkaPool : interviewPool;
+          pool[category] = (pool[category] || []).filter(function (q) { return q.id !== id; });
+          renderQuestions();
+        }
+
+        // Add question
+        var addBtn = e.target.closest(".add-question");
+        if (addBtn) {
+          var type = addBtn.getAttribute("data-type");
+          var category = addBtn.getAttribute("data-category");
+          var pool = type === "fka" ? fkaPool : interviewPool;
+          if (!pool[category]) pool[category] = [];
+          pool[category].push({
+            id: "new-" + Date.now(),
+            text: "",
+            category: category,
+            must_ask: false,
+            type: type === "fka" ? "text" : "verbal",
+            difficulty: "intermediate"
+          });
+          renderQuestions();
+        }
+      });
+
+      // Update question text on change
+      document.addEventListener("input", function (e) {
+        if (e.target.classList.contains("question-text")) {
+          var type = e.target.getAttribute("data-type");
+          var category = e.target.getAttribute("data-category");
+          var id = e.target.getAttribute("data-id");
+          var pool = type === "fka" ? fkaPool : interviewPool;
+          var q = (pool[category] || []).find(function (q) { return q.id === id; });
+          if (q) q.text = e.target.value;
+        }
+      });
+
+      // Update must_ask on toggle
+      document.addEventListener("change", function (e) {
+        if (e.target.classList.contains("must-ask-toggle")) {
+          var type = e.target.getAttribute("data-type");
+          var category = e.target.getAttribute("data-category");
+          var id = e.target.getAttribute("data-id");
+          var pool = type === "fka" ? fkaPool : interviewPool;
+          var q = (pool[category] || []).find(function (q) { return q.id === id; });
+          if (q) q.must_ask = e.target.checked;
+        }
+      });
+
+      // Close modal
+      document.getElementById("closeModal").addEventListener("click", function () {
+        document.getElementById("questionModal").classList.add("hidden");
+      });
+      document.getElementById("cancelReview").addEventListener("click", function () {
+        document.getElementById("questionModal").classList.add("hidden");
+      });
+      document.getElementById("modalOverlay").addEventListener("click", function () {
+        document.getElementById("questionModal").classList.add("hidden");
+      });
+
+      // Confirm and send
+      document.getElementById("confirmAndSend").addEventListener("click", function () {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        // Save questions first
+        fetch("/api/hr/run/" + currentRunId + "/questions", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fka_pool: fkaPool, interview_pool: interviewPool })
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error("Failed to save questions");
+            return r.json();
+          })
+          .then(function () {
+            btn.textContent = "Confirming & Sending...";
+            // Confirm run and send credentials
+            return fetch("/api/hr/run/" + currentRunId + "/confirm", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" }
+            });
+          })
+          .then(function (r) {
+            if (!r.ok) throw new Error("Failed to confirm and send");
+            return r.json();
+          })
+          .then(function (data) {
+            btn.disabled = false;
+            btn.textContent = "Confirm & Send Credentials";
+            document.getElementById("questionModal").classList.add("hidden");
+            showResultsWithEmailSent(currentRunId, data.created, data.skipped_no_email, data.errors || []);
+          })
+          .catch(function (err) {
+            btn.disabled = false;
+            btn.textContent = "Confirm & Send Credentials";
+            alert("Error: " + err.message);
+          });
+      });
+    })();
+  </script>
+</body>
+
+</html>

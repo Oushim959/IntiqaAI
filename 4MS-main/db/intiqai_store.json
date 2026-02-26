@@ -1,0 +1,610 @@
+{
+  "runs": [
+    {
+      "run_id": "753ce3ab0fa8",
+      "timestamp": "2026-02-25T20:43:32.755449Z",
+      "jd_title": "Junior AI Engineer (Entry-Level)",
+      "total_resumes": 1,
+      "improved_jd_pdf": null,
+      "all_results_excel": "D:\\4MS-main\\4MS-main\\cv_filtering\\cv_filter_latest_run\\Resume_Screening_Results.xlsx",
+      "high_scoring_excel": "D:\\4MS-main\\4MS-main\\cv_filtering\\cv_filter_latest_run\\High_Scoring_Candidates.xlsx",
+      "fka_questions_pool": {
+        "Concept": [
+          {
+            "text": "Describe the concept of overfitting in machine learning and provide one strategy to mitigate it.",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "4d60edeb",
+            "must_ask": false
+          },
+          {
+            "text": "Explain the difference between supervised and unsupervised learning in machine learning.",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "beginner",
+            "id": "40b3abc2",
+            "must_ask": false
+          },
+          {
+            "text": "What are the key steps involved in preparing and cleaning a dataset using Pandas and NumPy?",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "7967f9be",
+            "must_ask": false
+          },
+          {
+            "text": "Describe the process of deploying a machine learning model using Streamlit and explain its benefits.",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "66b242a0",
+            "must_ask": false
+          },
+          {
+            "text": "Explain the concept of precision, recall, and F1 score in the context of machine learning model evaluation.",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "7fd697ff",
+            "must_ask": false
+          }
+        ],
+        "Coding": [
+          {
+            "id": "eec68e32",
+            "text": "Implement a function in Python to preprocess a dataset. The dataset is a dictionary where each key is a feature name and each value is a list of numeric values. Your function should calculate the mean and standard deviation for each feature and store the results in a new dictionary.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "intermediate",
+            "must_ask": false
+          },
+          {
+            "id": "11f17887",
+            "text": "Write a Python function that takes a binary classification dataset as input (features and target variable). Your function should split the dataset into training and testing sets (70% for training and 30% for testing) using stratified sampling to maintain the class distribution.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "advanced",
+            "must_ask": false
+          },
+          {
+            "id": "ec04904e",
+            "text": "Write a SQL query to retrieve the top 5 products with the highest total sales from an e-commerce database. The database schema has three tables: products, orders, and order_items, where orders contains a foreign key referencing the products table and order_items contains a foreign key referencing the orders table.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "advanced",
+            "must_ask": false
+          },
+          {
+            "id": "7bb87062",
+            "text": "Write a Python function that takes a sentence as input and returns the sentiment polarity score using the NLTK library. Your function should also include a basic error handling mechanism to handle cases where the input sentence is invalid.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "advanced",
+            "must_ask": false
+          },
+          {
+            "id": "12ca8b36",
+            "text": "Write a Python function that takes a list of words and returns the word with the highest frequency using a simple algorithm (e.g., iterating over the list and counting occurrences). Your function should also handle edge cases like empty lists or lists with a single element.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "intermediate",
+            "must_ask": false
+          }
+        ],
+        "Scenario": [
+          {
+            "text": "Suppose you have a dataset of customer orders with features such as order date, product ID, and total cost. Describe how you would prepare and clean this dataset using Python (Pandas/NumPy) to be used for a machine learning model.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "cc420050",
+            "must_ask": false
+          },
+          {
+            "text": "A business analyst wants to evaluate the performance of a binary classification model. Explain how you would calculate accuracy, precision, recall, and F1 score for this model and interpret the results.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "d6c9eb10",
+            "must_ask": false
+          },
+          {
+            "text": "You have been asked to deploy a machine learning model using Streamlit. Describe the process you would follow to create a simple web application that allows users to interact with the model, including any necessary data preprocessing and visualization.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "6273d5d8",
+            "must_ask": false
+          },
+          {
+            "text": "Imagine you are working on a team project and need to document your experiments and findings. Describe the steps you would take to create a clear and concise report of your work, including any necessary code snippets and visualizations.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "easy",
+            "id": "fef6cc0c",
+            "must_ask": false
+          },
+          {
+            "text": "A colleague wants to use a specific machine learning algorithm for a project, but you are concerned that it may lead to overfitting. Explain how you would evaluate the risk of overfitting and suggest alternative approaches to mitigate it.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "8fc56faa",
+            "must_ask": false
+          }
+        ]
+      },
+      "interview_questions_pool": {
+        "Concept": [
+          {
+            "text": "How would you explain the concept of overfitting to a non-technical team member and what strategies would you use to prevent it?",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "beginner",
+            "id": "6f93c173",
+            "must_ask": false
+          },
+          {
+            "text": "Suppose we're building a machine learning model to predict customer churn. What metrics would you use to evaluate its performance, and how would you interpret the results?",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "08fc0a29",
+            "must_ask": false
+          },
+          {
+            "text": "Can you walk me through your process for collecting and cleaning a dataset for a machine learning project? What tools would you use and why?",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "beginner",
+            "id": "4471507f",
+            "must_ask": false
+          },
+          {
+            "text": "Imagine we're deploying a machine learning model using Streamlit. How would you ensure that the model is properly validated and tested in a production environment?",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "6c7e1812",
+            "must_ask": false
+          },
+          {
+            "text": "How do you stay up-to-date with the latest developments in the field of machine learning and AI? Can you give me an example of a recent technique or tool you've learned about?",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "2aa0a914",
+            "must_ask": false
+          }
+        ],
+        "Coding": [
+          {
+            "text": "What are some common pitfalls when using Pandas for data cleaning and preprocessing, and how would you mitigate them?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "c0ccf6ef",
+            "must_ask": false
+          },
+          {
+            "text": "Can you describe your approach to handling class imbalance in a binary classification problem? What metrics or techniques would you use to evaluate the performance of your model?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "advanced",
+            "id": "57d50456",
+            "must_ask": false
+          },
+          {
+            "text": "How would you approach building a simple Natural Language Processing (NLP) pipeline using a library like spaCy or NLTK? What considerations would you take into account when choosing a library or tool?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "788d204c",
+            "must_ask": false
+          },
+          {
+            "text": "What are some key considerations when deploying a machine learning model to production using Streamlit or a similar tool? How would you handle issues like model drift, data quality, or feature engineering?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "advanced",
+            "id": "749cd619",
+            "must_ask": false
+          },
+          {
+            "text": "Can you walk me through your thought process when approaching a new problem in machine learning, such as feature engineering or hyperparameter tuning? How would you prioritize tasks and allocate resources?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "8fb7aff3",
+            "must_ask": false
+          }
+        ],
+        "Scenario": [
+          {
+            "text": "You're tasked with developing a chatbot that integrates with our company's CRM system. Describe how you would approach the problem, including the tools and techniques you would use to design and train the chatbot.",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "3389686f",
+            "must_ask": false
+          },
+          {
+            "text": "A business stakeholder approaches you with a dataset of customer complaints and requests that you build a classification model to automatically categorize the complaints. Describe how you would approach this task, including any data preprocessing steps and the evaluation metrics you would use to measure the model's performance.",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "be1c492d",
+            "must_ask": false
+          },
+          {
+            "text": "You're given a dataset of user behavior on our company's website and are tasked with building a recommendation system that suggests products to users based on their past purchases. Describe how you would approach this task, including the algorithms and techniques you would use to build the recommendation system.",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "a253d826",
+            "must_ask": false
+          },
+          {
+            "text": "A team member is struggling to deploy a machine learning model to production due to issues with model serving. Describe how you would help troubleshoot the issue and ensure the model is successfully deployed.",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "cf5a70a5",
+            "must_ask": false
+          },
+          {
+            "text": "You're tasked with creating a dashboard to visualize the performance of multiple machine learning models. Describe how you would approach this task, including the tools and techniques you would use to design and implement the dashboard.",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "0f3a6425",
+            "must_ask": false
+          }
+        ]
+      },
+      "status": "confirmed",
+      "candidates": [
+        {
+          "id": "5b9c1e2f3a",
+          "resume_link": "Youssef_ElNahas_Resume.pdf",
+          "first_name": "Candidate 1",
+          "last_name": "",
+          "overall_fit": 9,
+          "email": "elnahasyoussef123@gmail.com",
+          "password": "zool2024",
+          "status": "fka_started",
+          "fka_questions": [],
+          "interview_questions": [],
+          "fka_session_id": "d910a0424d2d4e0abce4b010f7d59892",
+          "fka_score": null,
+          "interview_feedback": null,
+          "password_reset_token": null
+        }
+      ]
+    },
+    {
+      "run_id": "0d56fae16f49",
+      "timestamp": "2026-02-25T20:10:41.867500Z",
+      "jd_title": "Junior AI Engineer (Entry-Level)",
+      "total_resumes": 1,
+      "improved_jd_pdf": null,
+      "all_results_excel": "D:\\4MS-main\\4MS-main\\cv_filtering\\cv_filter_latest_run\\Resume_Screening_Results.xlsx",
+      "high_scoring_excel": "D:\\4MS-main\\4MS-main\\cv_filtering\\cv_filter_latest_run\\High_Scoring_Candidates.xlsx",
+      "fka_questions_pool": {
+        "Concept": [
+          {
+            "text": "What is data overfitting in machine learning, and how can it be mitigated?",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "5085d8da",
+            "must_ask": false
+          },
+          {
+            "text": "Explain the concept of model evaluation metrics such as accuracy, precision, recall, and F1-score.",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "708bf997",
+            "must_ask": false
+          },
+          {
+            "text": "Describe the process of data preprocessing using Pandas and NumPy. What are some common steps involved?",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "beginner",
+            "id": "7bda1f9b",
+            "must_ask": false
+          },
+          {
+            "text": "What is the purpose of using a version control system like Git/GitHub in a collaborative machine learning project?",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "beginner",
+            "id": "ebbc5db1",
+            "must_ask": false
+          },
+          {
+            "text": "Explain the concept of supervised learning in machine learning. Provide an example of a real-world scenario where it can be applied.",
+            "category": "Concept",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "e212063a",
+            "must_ask": false
+          }
+        ],
+        "Coding": [
+          {
+            "text": "A simple dataset contains the following information about customers: name, age, country, and purchase amount. Write a SQL query to retrieve the average purchase amount for customers from each country.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "beginner",
+            "id": "ff548e11",
+            "must_ask": false
+          },
+          {
+            "text": "Write a Python function to implement a simple neural network with one input layer, one hidden layer, and one output layer. The hidden layer should have a sigmoid activation function. Use NumPy for matrix operations.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "intermediate",
+            "id": "8c1431be",
+            "must_ask": false
+          },
+          {
+            "text": "Suppose you have a list of words and their frequencies. Write a Python function to implement a simple term frequency-inverse document frequency (TF-IDF) algorithm. Assume that the input list contains tuples of word and frequency.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "intermediate",
+            "id": "899aa656",
+            "must_ask": false
+          },
+          {
+            "text": "You are given a binary classification dataset with features X and labels y. Write a Python function to train a logistic regression model using Scikit-learn and evaluate its performance using accuracy, precision, and recall.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "intermediate",
+            "id": "73df9f95",
+            "must_ask": false
+          },
+          {
+            "text": "Write a Python function to deploy a simple machine learning model using Streamlit. Assume that the model is trained and saved, and you want to create a web interface to make predictions.",
+            "category": "Coding",
+            "type": "coding",
+            "difficulty": "beginner",
+            "id": "32c21017",
+            "must_ask": false
+          }
+        ],
+        "Scenario": [
+          {
+            "text": "Design a simple machine learning model to predict a continuous target variable using a linear regression algorithm, and explain the preprocessing steps you would take for a dataset containing missing values and outliers.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "a2683ebb",
+            "must_ask": false
+          },
+          {
+            "text": "You are given a dataset of customer transactions. Describe the steps you would take to preprocess the data, including handling categorical and numerical features, and explain how you would evaluate the quality of the preprocessed data.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "357dafd4",
+            "must_ask": false
+          },
+          {
+            "text": "Suppose you are tasked with building a model to classify customer churn based on their purchase history. Explain how you would use Python libraries such as Pandas and NumPy to prepare the data, and describe the machine learning algorithm you would use for classification.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "intermediate",
+            "id": "c4daf73b",
+            "must_ask": false
+          },
+          {
+            "text": "You are asked to deploy a machine learning model using Streamlit. Explain the steps you would take to create a simple Streamlit app that allows users to input data and view the model's predictions in real-time.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "advanced",
+            "id": "c72bc96f",
+            "must_ask": false
+          },
+          {
+            "text": "A team member has built a machine learning model that has a high accuracy score, but the F1 score is low. Explain the possible reasons for this discrepancy and describe the steps you would take to investigate and improve the model's performance.",
+            "category": "Scenario",
+            "type": "text",
+            "difficulty": "advanced",
+            "id": "8a187488",
+            "must_ask": false
+          }
+        ]
+      },
+      "interview_questions_pool": {
+        "Concept": [
+          {
+            "text": "Imagine you're working on a project where you need to classify customer reviews as positive or negative. Describe your approach to creating a supervised learning model for this task, including how you would handle imbalanced data and evaluate the model's performance.",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "eeec242c",
+            "must_ask": false
+          },
+          {
+            "text": "You've been given a dataset containing user behavior data, but it's not in a suitable format for training a machine learning model. Walk me through your process for cleaning and preprocessing the data, and explain how you would handle any missing or corrupted values.",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "c99e1bab",
+            "must_ask": false
+          },
+          {
+            "text": "Suppose you're tasked with building a recommendation system for a e-commerce platform. How would you approach this problem, and what techniques or algorithms would you use to create a personalized recommendation engine?",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "313e38f0",
+            "must_ask": false
+          },
+          {
+            "text": "Describe a scenario where you would use transfer learning to fine-tune a pre-trained model for a specific task. How would you adapt the model to your task, and what benefits do you think this approach would bring?",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "advanced",
+            "id": "6ec9df18",
+            "must_ask": false
+          },
+          {
+            "text": "You're working on a project that involves analyzing user interactions with a chatbot. How would you approach this task, and what metrics or evaluation techniques would you use to measure the chatbot's performance and effectiveness?",
+            "category": "Concept",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "92795510",
+            "must_ask": false
+          }
+        ],
+        "Coding": [
+          {
+            "text": "What strategies would you employ to handle concept drift in a machine learning model deployed in a production environment?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "advanced",
+            "id": "0d5a32fe",
+            "must_ask": false
+          },
+          {
+            "text": "How do you approach feature engineering for a dataset with categorical and numerical features? What techniques would you use to extract relevant information?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "713c8d6d",
+            "must_ask": false
+          },
+          {
+            "text": "Can you describe your thought process when selecting a suitable machine learning algorithm for a given problem? What factors do you consider?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "69b1e5ef",
+            "must_ask": false
+          },
+          {
+            "text": "How would you design a data pipeline for ingesting and processing large amounts of data from various sources, including APIs and databases?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "advanced",
+            "id": "b5815328",
+            "must_ask": false
+          },
+          {
+            "text": "How do you approach model interpretability, particularly in cases where the model's predictions are not easily interpretable? What techniques would you use?",
+            "category": "Coding",
+            "type": "verbal",
+            "difficulty": "advanced",
+            "id": "ad1a080a",
+            "must_ask": false
+          }
+        ],
+        "Scenario": [
+          {
+            "text": "You're tasked with developing a chatbot to assist customers with basic queries. Describe how you would approach this project and what machine learning algorithms you would use to achieve the desired outcome.",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "6c51b5e5",
+            "must_ask": false
+          },
+          {
+            "text": "Suppose you're working on a project that involves classifying images. Describe how you would handle the issue of overfitting and what techniques you would use to improve model generalizability.",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "f47b3965",
+            "must_ask": false
+          },
+          {
+            "text": "You've been given a dataset that contains missing values and outliers. How would you preprocess this data to make it suitable for training a machine learning model?",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "intermediate",
+            "id": "92b43c37",
+            "must_ask": false
+          },
+          {
+            "text": "Imagine you're building a recommendation system for a large e-commerce platform. Describe how you would approach this project and what algorithms you would use to provide personalized product recommendations to users.",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "advanced",
+            "id": "2cbf7a11",
+            "must_ask": false
+          },
+          {
+            "text": "You're tasked with deploying a machine learning model to a production environment using Streamlit or a similar tool. Describe the steps you would take to ensure the model is deployed securely and efficiently.",
+            "category": "Scenario",
+            "type": "verbal",
+            "difficulty": "advanced",
+            "id": "bd148834",
+            "must_ask": false
+          }
+        ]
+      },
+      "status": "confirmed",
+      "candidates": [
+        {
+          "id": "5d617b3543",
+          "resume_link": "abdulsalam cv.pdf",
+          "first_name": "Mohammed",
+          "last_name": "Abdulsalam",
+          "overall_fit": 9,
+          "email": "thirdcolab433@gmail.com",
+          "password": "UPMUPM",
+          "status": "interview_done",
+          "fka_questions": [],
+          "interview_questions": [],
+          "fka_session_id": "449145541f5a4a619e9fcfc1284b9652",
+          "fka_score": 90,
+          "interview_feedback": null,
+          "password_reset_token": null,
+          "fka_strengths": [
+            "The candidate demonstrated a good understanding of neural networks and implemented a simple one with sigmoid activation in Question 1.",
+            "Their explanation of supervised learning in Question 4 was clear and concise.",
+            "The candidate showed a good grasp of data preprocessing concepts in Question 5."
+          ],
+          "fka_weaknesses": [
+            "In Question 2, the candidate's explanation of deploying a model using Streamlit was brief and lacked specific details. Suggestion: Provide a more detailed step-by-step guide on how to create a simple Streamlit app.",
+            "In Question 3, the candidate's implementation of the TF-IDF algorithm was mostly correct, but they could have provided more context and explanations for the mathematical operations involved. Suggestion: Include more comments and explanations in the code to make it easier to understand."
+          ],
+          "fka_justification": "The candidate demonstrated a solid foundation in machine learning concepts and Python programming. However, there are areas where they could improve, such as providing more detailed explanations and code comments. Overall, their responses showed a good understanding of the fundamental knowledge required for the Junior AI Engineer role.",
+          "interview_evaluation_result": "Evaluation:\nQ1:\nScore: 2/5\nJustification: The candidate showed some basic understanding of model interpretability, but their response lacked depth and clarity. They mentioned some relevant techniques, but also included incorrect or unrelated information.\n\nQ2:\nScore: 1/5\nJustification: The candidate was unable to provide a coherent response to the question, and their answer was largely unrelated to the topic of data preprocessing.\n\nQ3:\nScore: 2/5\nJustification: The candidate showed some general knowledge of how to approach the problem, but their response lacked specificity and accuracy. They mentioned some relevant concepts, but also included incorrect or outdated information.\n\nQ4:\nScore: 1/5\nJustification: The candidate was unable to provide a coherent response to the question, and their answer was largely unrelated to the topic of building a recommendation system.\n\nQ5:\nScore: 1/5\nJustification: The candidate abruptly ended the interview, indicating a lack of interest in continuing the conversation and a failure to demonstrate their technical skills."
+        }
+      ]
+    }
+  ],
+  "hr_sessions": {},
+  "hr_users": [
+    {
+      "id": "645e94f84d8d4d11938e76e7e6344969",
+      "email": "hr@intiqai.com",
+      "password": "hr2024",
+      "approved": true
+    },
+    {
+      "id": "ad072c09602d4bf792c5857015bfb3ee",
+      "email": "hr2025@gmail.com",
+      "password": "hr2025",
+      "approved": true
+    },
+    {
+      "id": "51b89d36cb674107991e8bce7f553882",
+      "email": "myhhr@gmail.com",
+      "password": "HR@)@%",
+      "approved": true
+    },
+    {
+      "id": "34f32ad231be48be95f554324543abcd",
+      "email": "mehr@gmail.com",
+      "password": "MEHR@)@%",
+      "approved": true
+    }
+  ]
+}
